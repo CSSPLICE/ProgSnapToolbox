@@ -24,7 +24,7 @@ class IDColumn(enum.Enum):
     """
     The ID of the student.
     """
-    Student_ID = "StudentID"
+    Subject_ID = "SubjectID"
 
     """
     The ID of the course.
