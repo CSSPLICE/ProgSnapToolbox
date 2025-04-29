@@ -1,0 +1,69 @@
+Metadata:
+  Version: "1.0"
+  IsEventOrderingConsistent: true
+  # Add other fields here as needed
+
+EnumTypes:
+  - name: EventInitiator
+    values:
+      - name: UserDirectAction
+        description: Indicates that the user directly instigated the action.
+      - name: UserIndirectAction
+        description: Indicates that the user indirectly instigated an action.
+      # Add more enum values here
+
+MainTable:
+  columns:
+    - name: EventType
+      required: true
+      datatype: Enum
+      description: |
+        Every line logged in a dataset must be associated with a specific event, where events can be categorized as one of several possible types. Users are encouraged to apply the built-in enum values whenever possible, but if a new event type is necessary, the coder may define a new enum type beginning with the string “X-”. The metadata of the associated dataset should define what the new EventTypes mean.
+
+    - name: EventID
+      required: true
+      datatype: ID
+      description: |
+        Every event must have an ID value that is distinct from (not equal to) all other events in the main event table.
+
+    - name: SubjectID
+      required: true
+      datatype: ID
+      description: |
+        An ID representing the subject associated with the event. Whenever possible, the SubjectID should represent a single individual (i.e., a student.) A SubjectID could represent a group of individuals (i.e., a team) if the event truly originates from the group as a whole and is not directly associated with a single individual within the group.
+        SubjectID values and TeamID values are considered to be in the same namespace. For events where SubjectID and TeamID have the same value, it means that the event is ascribed to a team as a whole rather than any specific member of the team.
+        When it is not known who the subject associated with an event is, the special ID “UNKNOWN” should be used. This ID should not be used for regular subjects, and should be treated as missing information during analysis.
+
+    # More columns...
+
+    - name: EventInitiator
+      required: false
+      datatype: Enum
+      description: |
+        Events are typically performed by either the user, the tool, or the instructor. When known, this column should specify which one instigated the event.
+        Note that user, instructor, and team members can initiate actions either directly or indirectly. A direct action is one the person purposefully makes (like typing or editing a program with mouse clicks); an indirect action is one that is caused by a user action, but not done directly by the user (like when a user accepts an autocomplete recommendation and the text is filled in).
+        Users are encouraged to apply the built-in enum values whenever possible, but if a new value is necessary, the coder may define a new custom enum value and document the new value in the README.md.
+
+  event_types:
+    - name: Session.Start
+      description: Marks the start of a work session.
+      required_columns:
+        - SessionID
+
+    - name: Session.End
+      description: Marks the end of a work session.
+      required_columns:
+        - SessionID
+
+    # More event types...
+
+LinkTables:
+  - name: LinkSubject
+    id_column_names:
+      - SubjectID
+    additional_columns:
+      - name: MidtermExamScore
+        required: false
+        datatype: Real
+        description: |
+          The student's score between 0-1 on the midterm exam.
