@@ -12,3 +12,4 @@ progsnap2: A python library with 3 packages for handling
 
 progsnap2.database
 * Update tables when the spec changes
+* Add a DB spec to specify which columns are indexes, sizes of datatypes, etc.

@@ -36,8 +36,19 @@ MainTable:
 
     # More columns...
 
+    - name: SessionID
+      datatype: ID
+      description: TODO
+
+    - name: CodeStateSection
+      datatype: SourceLocation
+      description: TODO
+
+    - name: ProjectID
+      datatype: ID
+      description: TODO
+
     - name: EventInitiator
-      required: false
       datatype: Enum
       description: |
         Events are typically performed by either the user, the tool, or the instructor. When known, this column should specify which one instigated the event.
@@ -54,6 +65,23 @@ MainTable:
       description: Marks the end of a work session.
       required_columns:
         - SessionID
+
+    - name: Project.Open
+      description: Indicates that a project was opened.
+      required_columns:
+        - ProjectID
+
+    - name: Project.Close
+      description: Indicates that a project was closed due to an explicit user or system action. Data consumers should be prepared to handle cases where Project.Open is not terminated by an explicit Project.Close.
+      required_columns:
+        - ProjectID
+
+    - name: File.Create
+      description: Indicates that a file was created.
+      required_columns:
+        - CodeStateSection
+      optional_columns:
+        - EventInitiator
 
     # More event types...
 

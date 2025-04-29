@@ -29,7 +29,8 @@ class Column(BaseModel):
 class EventType(BaseModel):
     name: str
     description: Optional[str] = None
-    required_columns: List[str]
+    required_columns: Optional[List[str]] = None
+    optional_columns: Optional[List[str]] = None
 
 
 class MainTable(BaseModel):
