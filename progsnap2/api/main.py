@@ -1,13 +1,23 @@
 # server/main.py
+from enum import Enum
 from fastapi import FastAPI
-from typing import List
+from typing import List, Optional, Type
 
-from progsnap2.api.events import MainTableEvent, CodeState
+from pydantic import create_model
+
+from progsnap2.api.events import CodeState, MainTableEventBase, DataModelGenerator
+from progsnap2.spec import datatypes
+from progsnap2.spec.spec_definition import EnumType, ProgSnap2Spec, load_spec
+
+spec = load_spec("progsnap2/spec/progsnap2.yaml")
+
+data_model_gen = DataModelGenerator(spec)
+MainTableEvent = data_model_gen.MainTableEvent
 
 app = FastAPI()
 
 @app.post("/events", operation_id="addEvents")
-def add_events(events: List[MainTableEvent]):
+def add_events(events: List[Type[MainTableEvent]]):
     pass
 
 @app.post("/code_states", operation_id="addCodeStates")

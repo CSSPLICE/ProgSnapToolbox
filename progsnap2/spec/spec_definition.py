@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
+import yaml
 
 
 class Metadata(BaseModel):
@@ -52,3 +53,8 @@ class ProgSnap2Spec(BaseModel):
 
     def version(self) -> str:
         return self.Metadata.Version
+
+def load_spec(yaml_file: str) -> ProgSnap2Spec:
+    with open(yaml_file, "r", encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+    return ProgSnap2Spec(**data)

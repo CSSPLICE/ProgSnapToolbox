@@ -1,7 +1,10 @@
+from datetime import datetime
 from typing import Dict
 from sqlalchemy import create_engine, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum
 from sqlalchemy.dialects.sqlite import DATETIME
 from pydantic import BaseModel
+
+from progsnap2.spec import datatypes
 from ..spec.spec_definition import ProgSnap2Spec
 import yaml
 
@@ -9,53 +12,44 @@ import yaml
 from sqlalchemy import Text, String, Integer, Float, Boolean
 from sqlalchemy.dialects.sqlite import DATETIME
 
-def map_datatype(datatype: str):
+def map_datatype(datatype_name: str):
     """
     Maps ProgSnap2 datatype strings to SQLAlchemy column types.
     Expand this as needed for more precise typing or databases.
     """
     # Normalize
-    dtype = datatype.strip().lower()
+    ps2_type_name = datatype_name.strip().lower()
 
-    # TODO: Should probably be configurable in a db config
-    short_string = String(255)
-    path_string = String(2048)
+    if ps2_type_name == "enum":
+        return String(255)  # Enums are stored as strings in the database
 
-    mapping = {
-        # ID and Text types
-        "id": short_string,
-        "enum": short_string,
-        "url": path_string,
-        "relativepath": path_string,
-        "sourcelocation": path_string,
-        "string": Text,
+    if not datatypes.is_datatype(ps2_type_name):
+        raise ValueError(f"Unrecognized datatype: {datatype_name}")
 
-        # Numbers
-        "integer": Integer,
-        "real": Float,
-        "boolean": Boolean,
+    datatype = datatypes.get_datatype(ps2_type_name)
 
-        # Time
-        "timestamp": DATETIME,
-        "timezone": short_string,
+    if datatype.max_str_length is not None:
+        # If the datatype has a max string length, use that
+        return String(datatype.max_str_length)
+
+    if datatype.python_type == str:
+        # If the datatype is a string but has no max length, use Text
+        return Text
+
+    # Convert python type to SQL type
+    type_map = {
+        str: String,
+        int: Integer,
+        float: Float,
+        bool: Boolean,
+        datetime: DATETIME,
     }
+    if ps2_type_name not in type_map:
+        raise ValueError(f"Unconvertible datatype: {datatype.python_type}")
 
-    if dtype not in mapping:
-        raise ValueError(f"Unrecognized datatype: {datatype}")
-
-    return mapping[dtype]
-
+    return type_map.get(datatype.python_type)
 
 
-# --- Step 1: Load your schema spec from YAML ---
-
-def load_schema(yaml_file: str) -> ProgSnap2Spec:
-    with open(yaml_file, "r", encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-    return ProgSnap2Spec(**data)
-
-
-# --- Step 2: Create tables from SchemaSpec ---
 
 def define_column(column_spec):
     """
