@@ -1,13 +1,10 @@
 # server/main.py
 from enum import Enum
 from fastapi import FastAPI
-from typing import List, Optional, Type
+from typing import List, Type
 
-from pydantic import create_model
-
-from progsnap2.api.events import CodeState, MainTableEventBase, DataModelGenerator
-from progsnap2.spec import datatypes
-from progsnap2.spec.spec_definition import EnumType, ProgSnap2Spec, load_spec
+from progsnap2.api.events import CodeState, DataModelGenerator
+from progsnap2.spec.spec_definition import load_spec
 
 spec = load_spec("progsnap2/spec/progsnap2.yaml")
 

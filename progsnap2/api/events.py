@@ -63,7 +63,10 @@ class MainTableEventBase(BaseModel):
     # Add more event-specific columns
 
 
-
+# TODO: Explore if we can add documentation to fields or enum values
+# TODO: Explore if it's worthwhile to add special MainTableEvent classes
+# for each event type. This could in theory replace TS CodeGen and would support
+# other languages too, but wouldn't have quite as good ergonomics IMO
 class DataModelGenerator:
     """
     A class that generates the data model for the events.

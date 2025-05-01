@@ -34,6 +34,21 @@ MainTable:
         SubjectID values and TeamID values are considered to be in the same namespace. For events where SubjectID and TeamID have the same value, it means that the event is ascribed to a team as a whole rather than any specific member of the team.
         When it is not known who the subject associated with an event is, the special ID “UNKNOWN” should be used. This ID should not be used for regular subjects, and should be treated as missing information during analysis.
 
+    - name: ToolInstances
+      required: true
+      datatype: String
+      description: TODO
+
+    - name: Order
+      required: false
+      datatype: Integer
+      description: TODO
+
+    - name: ClientTimestamp
+      required: false
+      datatype: Timestamp
+      description: TODO
+
     # More columns...
 
     - name: SessionID
