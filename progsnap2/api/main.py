@@ -14,7 +14,7 @@ MainTableEvent = data_model_gen.MainTableEvent
 app = FastAPI()
 
 @app.post("/events", operation_id="addEvents")
-def add_events(events: List[Type[MainTableEvent]]):
+def add_events(events: List[MainTableEvent]):
     pass
 
 @app.post("/code_states", operation_id="addCodeStates")
