@@ -38,7 +38,7 @@ class EventType(BaseModel):
     required_columns: Optional[List[str]] = None
     optional_columns: Optional[List[str]] = None
 
-    def is_column_present(self, column_name: str) -> bool:
+    def is_column_specific_to_event(self, column_name: str) -> bool:
         return (self.required_columns and column_name in self.required_columns) or \
                (self.optional_columns and column_name in self.optional_columns)
 
