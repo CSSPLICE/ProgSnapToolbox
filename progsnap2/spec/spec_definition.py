@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
+from enum import Enum
 import yaml
 
 
@@ -19,10 +20,14 @@ class EnumType(BaseModel):
     name: str
     values: List[EnumValue]
 
+class Requirement(Enum):
+    Required = "Required"
+    Optional = "Optional"
+    EventSpecific = "EventSpecific"
 
 class Column(BaseModel):
     name: str
-    required: Optional[bool] = False
+    requirement: Requirement
     datatype: str  # you could make this an Enum if you want stricter validation
     description: Optional[str] = None
 
@@ -32,6 +37,13 @@ class EventType(BaseModel):
     description: Optional[str] = None
     required_columns: Optional[List[str]] = None
     optional_columns: Optional[List[str]] = None
+
+    def is_column_present(self, column_name: str) -> bool:
+        return (self.required_columns and column_name in self.required_columns) or \
+               (self.optional_columns and column_name in self.optional_columns)
+
+    def is_column_required(self, column_name: str) -> bool:
+        return self.required_columns and column_name in self.required_columns
 
 
 class MainTable(BaseModel):

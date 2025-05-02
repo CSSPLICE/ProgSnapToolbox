@@ -15,19 +15,19 @@ EnumTypes:
 MainTable:
   columns:
     - name: EventType
-      required: true
+      requirement: Required
       datatype: Enum
       description: |
         Every line logged in a dataset must be associated with a specific event, where events can be categorized as one of several possible types. Users are encouraged to apply the built-in enum values whenever possible, but if a new event type is necessary, the coder may define a new enum type beginning with the string “X-”. The metadata of the associated dataset should define what the new EventTypes mean.
 
     - name: EventID
-      required: true
+      requirement: Required
       datatype: ID
       description: |
         Every event must have an ID value that is distinct from (not equal to) all other events in the main event table.
 
     - name: SubjectID
-      required: true
+      requirement: Required
       datatype: ID
       description: |
         An ID representing the subject associated with the event. Whenever possible, the SubjectID should represent a single individual (i.e., a student.) A SubjectID could represent a group of individuals (i.e., a team) if the event truly originates from the group as a whole and is not directly associated with a single individual within the group.
@@ -35,35 +35,39 @@ MainTable:
         When it is not known who the subject associated with an event is, the special ID “UNKNOWN” should be used. This ID should not be used for regular subjects, and should be treated as missing information during analysis.
 
     - name: ToolInstances
-      required: true
+      requirement: Required
       datatype: String
       description: TODO
 
     - name: Order
-      required: false
+      requirement: Optional
       datatype: Integer
       description: TODO
 
     - name: ClientTimestamp
-      required: false
+      requirement: Optional
       datatype: Timestamp
       description: TODO
 
     # More columns...
 
     - name: SessionID
+      requirement: EventSpecific
       datatype: ID
       description: TODO
 
     - name: CodeStateSection
+      requirement: EventSpecific
       datatype: SourceLocation
       description: TODO
 
     - name: ProjectID
+      requirement: EventSpecific
       datatype: ID
       description: TODO
 
     - name: EventInitiator
+      requirement: EventSpecific
       datatype: Enum
       description: |
         Events are typically performed by either the user, the tool, or the instructor. When known, this column should specify which one instigated the event.
@@ -106,7 +110,7 @@ LinkTables:
       - SubjectID
     additional_columns:
       - name: MidtermExamScore
-        required: false
+        requirement: Optional
         datatype: Real
         description: |
           The student's score between 0-1 on the midterm exam.

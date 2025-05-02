@@ -10,11 +10,12 @@ spec = load_spec("progsnap2/spec/progsnap2.yaml")
 
 data_model_gen = DataModelGenerator(spec)
 MainTableEvent = data_model_gen.MainTableEvent
+AnyMainTableEvent = data_model_gen.AnyMainTableEvent
 
 app = FastAPI()
 
 @app.post("/events", operation_id="addEvents")
-def add_events(events: List[MainTableEvent]):
+def add_events(events: List[AnyMainTableEvent]):
     pass
 
 @app.post("/code_states", operation_id="addCodeStates")
