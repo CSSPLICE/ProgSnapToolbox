@@ -64,6 +64,14 @@ class MainTableEventBase(BaseModel):
 
 
 # TODO: Explore if we can add documentation to fields or enum values
+# TODO: Should probably have two ways of defining an event:
+# 1) Define all the columns in the event
+# 2) Define the non-event-specific columns in the event, and then add an AnyAdditionalColumns
+#    This could generate an instance of (1) easily
+# Could also just create one class that has all columns *and* the additional columns,
+# which I like for the simplicity but dislike for the redundancy...
+# Either way, I still like the idea of using TS codegen for helper methods, but this
+# means they'll break if someone updates the server spec which I dont like...
 class DataModelGenerator:
     """
     A class that generates the data model for the events.
