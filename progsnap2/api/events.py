@@ -119,10 +119,10 @@ class DataModelGenerator:
     def get_type_for_column(self, col: Column):
         if col.name == "EventType":
             return self.event_type_enum
-        elif col.datatype == "Enum":
+        elif col.datatype == datatypes.PS2Datatype.Enum:
             return self.get_enum_for_type(self.enum_type_map[col.name])
         else:
-            return datatypes.get_datatype(col.datatype).python_type
+            return col.datatype.python_type
 
     def get_field_representation(self, type, required: bool):
         """

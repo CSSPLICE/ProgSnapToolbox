@@ -1,14 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from enum import Enum
 import yaml
 
-
-class Metadata(BaseModel):
-    Version: str
-    IsEventOrderingConsistent: bool
-    # Add any other metadata fields you need
-    # e.g. Description: Optional[str] = None
+from progsnap2.spec.datatypes import PS2Datatype
 
 
 class EnumValue(BaseModel):
@@ -25,11 +20,22 @@ class Requirement(Enum):
     Optional = "Optional"
     EventSpecific = "EventSpecific"
 
-class Column(BaseModel):
+class Property(BaseModel):
     name: str
-    requirement: Requirement
-    datatype: str  # you could make this an Enum if you want stricter validation
+    datatype: PS2Datatype
     description: Optional[str] = None
+
+    @field_validator("datatype", mode="before")
+    def parse_datatype(cls, v):
+        if isinstance(v, str):
+            return PS2Datatype.from_label(v)
+        return v
+
+class Column(Property):
+    requirement: Requirement
+
+class Metadata(BaseModel):
+    properties: List[Column]
 
 
 class EventType(BaseModel):
@@ -69,4 +75,5 @@ class ProgSnap2Spec(BaseModel):
 def load_spec(yaml_file: str) -> ProgSnap2Spec:
     with open(yaml_file, "r", encoding='utf-8') as f:
         data = yaml.safe_load(f)
+    print(data)
     return ProgSnap2Spec(**data)

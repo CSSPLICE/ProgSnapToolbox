@@ -2,6 +2,7 @@ from jinja2 import Template
 
 from progsnap2.api.events import EventType
 from .spec_definition import ProgSnap2Spec, Column
+from .datatypes import PS2Datatype
 import textwrap
 
 def create_template():
@@ -14,27 +15,9 @@ def create_template():
 """
 
 def map_to_ts_type(column: Column) -> str:
-    if column.datatype.lower() == "enum":
+    if column.datatype == PS2Datatype.Enum:
         return column.name + "Type"
-
-    mapping = {
-        # ID and Text types
-        "id": "string",
-        "enum": "string",
-        "url": "string",
-        "relativepath": "string",
-        "sourcelocation": "string",
-        "string": "string",
-
-        # Numbers
-        "integer": "number",
-        "real": "number",
-        "boolean": "boolean",
-
-        # Time
-        "timestamp": "Date",
-    }
-    return mapping.get(column.datatype.lower(), "any")
+    return column.datatype.typescript_type
 
 def camel_case(s: str):
     parts = s.split(".")

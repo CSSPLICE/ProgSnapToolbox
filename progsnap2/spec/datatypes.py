@@ -1,47 +1,32 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+from enum import Enum
 
-@dataclass
-class PS2Datatype:
-    name: str
-    python_type: type
-    typescript_type: str
-    max_str_length: Optional[int] = None
+_SHORT_STRING_LENGTH = 255
+_PATH_STRING_LENGTH = 2048
+class PS2Datatype(Enum):
 
-__short_string_length = 255
-__path_string_length = 2048
+    ID = ("ID", str, "string", _SHORT_STRING_LENGTH)
+    URL = ("URL", str, "string", _PATH_STRING_LENGTH)
+    RelativePath = ("RelativePath", str, "string", _PATH_STRING_LENGTH)
+    SourceLocation = ("SourceLocation", str, "string", _PATH_STRING_LENGTH)
+    String = ("String", str, "string") # Not max length
+    Integer = ("Integer", int, "number")
+    Real = ("Real", float, "number")
+    Boolean = ("Boolean", bool, "boolean")
+    Timestamp = ("Timestamp", datetime, "Date")
+    # Typescript type for Enums should be custom, so we use None
+    Enum = ("Enum", str, None, _SHORT_STRING_LENGTH)
 
-__datatypes = [
-    PS2Datatype("ID", str, "string", __short_string_length),
-    PS2Datatype("URL", str, "string", __path_string_length),
-    PS2Datatype("RelativePath", str, "string", __path_string_length),
-    PS2Datatype("SourceLocation", str, "string", __path_string_length),
-    PS2Datatype("String", str, "string"), # Not max length
-    PS2Datatype("Integer", int, "number"),
-    PS2Datatype("Real", float, "number"),
-    PS2Datatype("Boolean", bool, "boolean"),
-    PS2Datatype("Timestamp", datetime, "Date")
-]
+    def __init__(self, label: str, python_type: type, typescript_type: str, max_str_length: Optional[int] = None):
+        self.label = label
+        self.python_type = python_type
+        self.typescript_type = typescript_type
+        self.max_str_length = max_str_length
 
-__datatype_map = { dt.name.lower(): dt for dt in __datatypes }
-
-def is_datatype(name: str) -> bool:
-    """
-    Check if the given name is a recognized datatype.
-    :param name: The name of the datatype.
-    :return: True if the name is a recognized datatype, False otherwise.
-    """
-    return name.lower() in __datatype_map
-
-def get_datatype(name: str) -> PS2Datatype:
-    """
-    Get the PS2Datatype object for a given name.
-    :param name: The name of the datatype.
-    :return: The PS2Datatype object.
-    """
-    if not is_datatype(name):
-        raise ValueError(f"Unrecognized datatype: {name}")
-    return __datatype_map[name.lower()]
-
-
+    @classmethod
+    def from_label(cls, label: str) -> "PS2Datatype":
+        for member in cls:
+            if member.label == label:
+                return member
+        raise ValueError(f"Unknown PS2Datatype label: {label}")
