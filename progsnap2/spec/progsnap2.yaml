@@ -84,17 +84,96 @@ MainTable:
     - name: ToolInstances
       requirement: Required
       datatype: String
-      description: TODO
+      description: A semicolon-separated list of tool instance identifiers active at the time of the event.
 
     - name: Order
       requirement: Optional
       datatype: Integer
-      description: TODO
+      description: An integer used to impose a partial ordering on events, typically for analysis or visualization.
 
     - name: ClientTimestamp
       requirement: Optional
       datatype: Timestamp
-      description: TODO
+      description: The timestamp recorded by the client machine when the event occurred.
+
+    - name: CourseID
+      requirement: Optional
+      datatype: ID
+      description: |
+        Students are usually associated with a specific course that they are learning in. This course must be given an ID that is shared across all students enrolled in the course, but distinct from different courses in the same dataset. We define courses to be different when they teach different content (e.g., CS1 vs CS2). Note that a course which takes place over several terms with different students should be given the same ID across all terms; the datasets will be distinguished by their TermIDs.
+        We recommend that CourseIDs be at least somewhat anonymized, to avoid making student data identifiable.
+
+    - name: CourseSectionID
+      requirement: Optional
+      datatype: ID
+      description: |
+        Courses are often split up into smaller sections of students who primarily interact with each other and a specific TA. If applicable, each section should be given a distinct ID (unique from other sections in the given course and other courses). CourseSections should not share IDs across terms.
+        We recommend that CourseSectionIDs be at least somewhat anonymized, to avoid making student data identifiable.
+
+    - name: TermID
+      requirement: Optional
+      datatype: ID
+      description: |
+        The term in which the course took place. Can be written as needed, but we recommend the format '<Semester> <Year>'; for example, 'Spring 2018'.
+
+    - name: AssignmentID
+      requirement: Optional
+      datatype: ID
+      description: |
+        CodeStates are often associated with a specific assignment that is composed of one or more programming problems. Each unique assignment must be given a distinct ID from other assignments in the associated course and other courses. If an assignment is identical to an assignment in a previous term of the course or another course, they should be given the same ID, but any changes in the assignment should result in a changed ID.
+        If the CodeState represents free-form student work not associated with a specific assignment or problem, this value should be empty. Stand-alone problems also do not need to be associated with assignments.
+
+    - name: AssignmentIsGraded
+      requirement: Optional
+      datatype: Boolean
+      description: This value indicates whether or not the assignment specified by the AssignmentID was graded (true) or ungraded (false).
+
+    - name: ProblemID
+      requirement: Optional
+      datatype: ID
+      description: |
+        The identifier for the programming problem associated with the event. Each unique problem must have its own identifier that is distinct from other identifiers in the same column that correspond to different problems. If a record specifying a ProblemID also specifies an AssignmentID, it means that the problem is part of the specified assignment. There is no requirement that problems are associated with an assignment: for example, a standalone practice problem might not be considered to be part of an assignment.
+
+    - name: ProblemIsGraded
+      requirement: Optional
+      datatype: Boolean
+      description: This value indicates whether or not the problem specified by the ProblemID was graded (true) or ungraded (false).
+
+    - name: Attempt
+      requirement: Optional
+      datatype: Integer
+      description: |
+        If a student attempts a problem more than once, this value is used to identify which attempt they're on. It should start at 1, then increase by 1 on each following attempt.
+
+    - name: ExperimentalCondition
+      requirement: Optional
+      datatype: String
+      description: |
+        If this data was logged as part of an experiment, this column can be used to specify the experimental condition that the event took place in. Condition names must be consistent for events in the same condition, and (if possible) distinct between different experiments. This can be accomplished by assigning each experiment in the dataset a distinct name. An example condition string is “02/18 Parsons Problem Study: Control”; this establishes the condition (control case), the study content (parsons problems), and when the study took place (February 2018).
+
+    - name: TeamID
+      requirement: Optional
+      datatype: ID
+      description: |
+        This value indicates the identity of a team. There are two possible meanings of TeamID:
+        - If the TeamID value is different from the SubjectID value, it means that the SubjectID designates a single individual, and the TeamID value identifies the team the individual belongs to.
+        - If the TeamID value is the same as the SubjectID value, it means that the SubjectID designates a team, and that the event is ascribed to the team as a whole rather than any individual member of the team.
+        When this value is used, a Link Table should be created to map the TeamID to a list of SubjectIDs, when known. This should be done with two columns: the first column the TeamID, the second a single SubjectID, where the number of rows the TeamID appears in maps to the number of SubjectIDs.
+
+    - name: LoggingErrorID
+      requirement: Optional
+      datatype: ID
+      description: |
+        Logging errors are an inevitable part of the data collection process. If a data collector finds that an error occurred during the logging process, they should leave the data in its original state, but annotate all erroneous data with IDs, where each ID corresponds to a specific logging error event. Further information about the error can then be provided in a link table (which should include the ID, error type, and an explanation).
+
+        Note that logging errors can come in many forms, including corrupted/lost data, server downtime, and tool errors that result in incorrect feedback. We define a logging error to be anything that results in the log not accurately representing the true state of the world.
+
+    - name: IsFabricatedEvent
+      requirement: Optional
+      datatype: Boolean
+      description: |
+        When true, this field indicates that an event was "fabricated" after the fact, rather than being directly logged by the original programming environment. This might occur when converting from another log format into ProgSnap2 format, or when supplemental information is added after the fact. For example, if a system only logs Compile.Error events, a Compile event may be assumed and fabricated to accompany these events. Or, if Compile.Error events are not logged, but can be derived from the code in post hoc analysis, these could be added as fabricated events. This column should be accompanied by documentation in the README that explains what assumptions were made when creating these fabricated events. Since it is always possible to make mistakes when fabricating events, marking these explicitly can be helpful in discovering possible mistakes.
+
 
     # More columns...
 
