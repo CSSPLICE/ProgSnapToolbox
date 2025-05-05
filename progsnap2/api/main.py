@@ -1,6 +1,7 @@
 # server/main.py
 from enum import Enum
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Type
 
 from progsnap2.api.events import CodeState, DataModelGenerator
@@ -13,6 +14,15 @@ MainTableEvent = data_model_gen.MainTableEvent
 AnyAdditionalColumns = data_model_gen.AnyAdditionalColumns
 
 app = FastAPI()
+
+# TODO: Make configurable
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Likely only should support the client...
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/placeholder")
 def get_additional_column_types(additionalColumns: AnyAdditionalColumns):

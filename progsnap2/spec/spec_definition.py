@@ -75,5 +75,4 @@ class ProgSnap2Spec(BaseModel):
 def load_spec(yaml_file: str) -> ProgSnap2Spec:
     with open(yaml_file, "r", encoding='utf-8') as f:
         data = yaml.safe_load(f)
-    print(data)
     return ProgSnap2Spec(**data)
