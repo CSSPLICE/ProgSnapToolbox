@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from enum import Enum
 import yaml
 
@@ -55,6 +55,22 @@ class EventType(BaseModel):
 class MainTable(BaseModel):
     columns: List[Column]
     event_types: List[EventType]
+
+    @model_validator(mode="after")
+    def validate_event_types(cls, values):
+        # Check if all required columns are present in the main table
+        required_columns = {col.name for col in values.columns}
+        for event_type in values.event_types:
+            named_columns = set()
+            if event_type.required_columns:
+                named_columns.update(event_type.required_columns)
+            if event_type.optional_columns:
+                named_columns.update(event_type.optional_columns)
+            missing_columns = named_columns - required_columns
+            if missing_columns:
+                raise ValueError(f"Named columns in '{event_type.name}' not defined in MainTable: {missing_columns}")
+        return values
+
 
 
 class LinkTable(BaseModel):
