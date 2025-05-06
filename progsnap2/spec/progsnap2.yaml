@@ -5,6 +5,18 @@ EnumTypes:
         description: Indicates that the user directly instigated the action.
       - name: UserIndirectAction
         description: Indicates that the user indirectly instigated an action.
+      - name: ToolReaction
+        description: Indicates that a tool caused the edit as a reaction to something the user did.
+      - name: ToolTimedEvent
+        description: Indicates that a tool caused the edit as part of a time-based event (such as automatically saving every five minutes).
+      - name: InstructorDirectAction
+        description: Indicates that the instructor directly caused the action, potentially remotely.
+      - name: InstructorIndirectAction
+        description: Indicates that the instructor indirectly caused the action, potentially remotely.
+      - name: TeamMemberDirectAction
+        description: Indicates that a team member directly caused the event; for example, if two students are pair-programming on a shared screen.
+      - name: TeamMemberIndirectAction
+        description: Indicates that a team member indirectly caused the event; for example, if two students are pair-programming on a shared screen.
   - name: EventOrderScope
     values:
       - name: Global
@@ -13,6 +25,28 @@ EnumTypes:
         description: Indicates that the Order column values are only comparable between events with identical values for all of the columns specified by the EventOrderScopeColumns property
       - name: None
         description: Indicates that the Order column values should never be assumed to determine an ordering for any events; in other words, the events are not ordered.
+  - name: EditType
+    values:
+      - name: Insert
+        description: Indicates that one or more characters or values have been added.
+      - name: Delete
+        description: Indicates that one or more characters of values have been deleted.
+      - name: Replace
+        description: Indicates that one or more characters or values have been replaced by new characters/values.
+      - name: Move
+        description: Indicates that one or more characters or values have been moved to a new location.
+      - name: Paste
+        description: Indicates that one or more characters or values have been pasted into the program.
+      - name: Undo
+        description: Indicates that the most recent edit not of an undo/redo type was undone.
+      - name: Redo
+        description: Indicates that the most recent edit that had been undone was re-done.
+      - name: Refactor
+        description: Indicates that the program has been refactored in some way.
+      - name: Reset
+        description: Indicates that the program has been reset to its start state.
+      - name: GenericEdit
+        description: Any generic edit that can not be described by the edits listed above. If your dataset contains a new category of edits not defined here, we recommend defining a custom value for this enumeration, rather than using GenericEdit.
   - name: CodeStateRepresentation
     values:
       - name: Table
@@ -44,7 +78,7 @@ Metadata:
       requirement: Required
       datatype: String
       description: |
-        This property specifies the main event table columns which define the scope of meaningful comparisons of Order column values.  This property must be set to a non-empty value if the EventOrderScope property has the value “Restricted”.  (This property has no significance if EventOrderScope is not “Restricted”.)  (This property has no significance if EventOrderScope is not “Restricted”.)  The value of this column is a semicolon-separated list of main event table column names.
+        This property specifies the main event table columns which define the scope of meaningful comparisons of Order column values.  This property must be set to a non-empty value if the EventOrderScope property has the value "Restricted".  (This property has no significance if EventOrderScope is not "Restricted".)  (This property has no significance if EventOrderScope is not "Restricted".)  The value of this column is a semicolon-separated list of main event table column names.
         See more information in the full specification.
 
     - name: CodeStateRepresentation
@@ -61,11 +95,13 @@ Metadata:
 
 MainTable:
   columns:
+    # --- Required Universal Columns ---
+
     - name: EventType
       requirement: Required
       datatype: Enum
       description: |
-        Every line logged in a dataset must be associated with a specific event, where events can be categorized as one of several possible types. Users are encouraged to apply the built-in enum values whenever possible, but if a new event type is necessary, the coder may define a new enum type beginning with the string “X-”. The metadata of the associated dataset should define what the new EventTypes mean.
+        Every line logged in a dataset must be associated with a specific event, where events can be categorized as one of several possible types. Users are encouraged to apply the built-in enum values whenever possible, but if a new event type is necessary, the coder may define a new enum type beginning with the string "X-". The metadata of the associated dataset should define what the new EventTypes mean.
 
     - name: EventID
       requirement: Required
@@ -78,29 +114,43 @@ MainTable:
       datatype: ID
       description: |
         An ID representing the subject associated with the event. Whenever possible, the SubjectID should represent a single individual (i.e., a student.) A SubjectID could represent a group of individuals (i.e., a team) if the event truly originates from the group as a whole and is not directly associated with a single individual within the group.
+
         SubjectID values and TeamID values are considered to be in the same namespace. For events where SubjectID and TeamID have the same value, it means that the event is ascribed to a team as a whole rather than any specific member of the team.
-        When it is not known who the subject associated with an event is, the special ID “UNKNOWN” should be used. This ID should not be used for regular subjects, and should be treated as missing information during analysis.
+
+        When it is not known who the subject associated with an event is, the special ID "UNKNOWN" should be used. This ID should not be used for regular subjects, and should be treated as missing information during analysis.
 
     - name: ToolInstances
       requirement: Required
       datatype: String
-      description: A semicolon-separated list of tool instance identifiers active at the time of the event.
+      description: |
+        A semicolon-separated list of tool instance identifiers active at the time of the event.
+
+    # --- Optional Universal Columns ---
 
     - name: Order
       requirement: Optional
       datatype: Integer
-      description: An integer used to impose a partial ordering on events, typically for analysis or visualization.
+      description: |
+        An integer used to impose a partial ordering on events, typically for analysis or visualization.
 
     - name: ClientTimestamp
       requirement: Optional
       datatype: Timestamp
-      description: The timestamp recorded by the client machine when the event occurred.
+      description: |
+        The timestamp recorded by the client machine when the event occurred.
+
+    - name: ServerTimestamp
+      requirement: Optional
+      datatype: Timestamp
+      description: |
+        A ServerTimestamp value indicates the time when an event was logged on a server system.  In general, it is expected that servers will have clocks that are (to a reasonable degree) accurately synchronized with global time standards (e.g., using NTP), although this cannot be guaranteed.  Also, in cases where there are multiple servers, their clocks may not be completely synchronized with each other.
 
     - name: CourseID
       requirement: Optional
       datatype: ID
       description: |
         Students are usually associated with a specific course that they are learning in. This course must be given an ID that is shared across all students enrolled in the course, but distinct from different courses in the same dataset. We define courses to be different when they teach different content (e.g., CS1 vs CS2). Note that a course which takes place over several terms with different students should be given the same ID across all terms; the datasets will be distinguished by their TermIDs.
+
         We recommend that CourseIDs be at least somewhat anonymized, to avoid making student data identifiable.
 
     - name: CourseSectionID
@@ -108,6 +158,7 @@ MainTable:
       datatype: ID
       description: |
         Courses are often split up into smaller sections of students who primarily interact with each other and a specific TA. If applicable, each section should be given a distinct ID (unique from other sections in the given course and other courses). CourseSections should not share IDs across terms.
+
         We recommend that CourseSectionIDs be at least somewhat anonymized, to avoid making student data identifiable.
 
     - name: TermID
@@ -121,12 +172,14 @@ MainTable:
       datatype: ID
       description: |
         CodeStates are often associated with a specific assignment that is composed of one or more programming problems. Each unique assignment must be given a distinct ID from other assignments in the associated course and other courses. If an assignment is identical to an assignment in a previous term of the course or another course, they should be given the same ID, but any changes in the assignment should result in a changed ID.
+
         If the CodeState represents free-form student work not associated with a specific assignment or problem, this value should be empty. Stand-alone problems also do not need to be associated with assignments.
 
     - name: AssignmentIsGraded
       requirement: Optional
       datatype: Boolean
-      description: This value indicates whether or not the assignment specified by the AssignmentID was graded (true) or ungraded (false).
+      description: |
+        This value indicates whether or not the assignment specified by the AssignmentID was graded (true) or ungraded (false).
 
     - name: ProblemID
       requirement: Optional
@@ -137,7 +190,8 @@ MainTable:
     - name: ProblemIsGraded
       requirement: Optional
       datatype: Boolean
-      description: This value indicates whether or not the problem specified by the ProblemID was graded (true) or ungraded (false).
+      description: |
+        This value indicates whether or not the problem specified by the ProblemID was graded (true) or ungraded (false).
 
     - name: Attempt
       requirement: Optional
@@ -149,15 +203,16 @@ MainTable:
       requirement: Optional
       datatype: String
       description: |
-        If this data was logged as part of an experiment, this column can be used to specify the experimental condition that the event took place in. Condition names must be consistent for events in the same condition, and (if possible) distinct between different experiments. This can be accomplished by assigning each experiment in the dataset a distinct name. An example condition string is “02/18 Parsons Problem Study: Control”; this establishes the condition (control case), the study content (parsons problems), and when the study took place (February 2018).
+        If this data was logged as part of an experiment, this column can be used to specify the experimental condition that the event took place in. Condition names must be consistent for events in the same condition, and (if possible) distinct between different experiments. This can be accomplished by assigning each experiment in the dataset a distinct name. An example condition string is "02/18 Parsons Problem Study: Control"; this establishes the condition (control case), the study content (parsons problems), and when the study took place (February 2018).
 
     - name: TeamID
       requirement: Optional
       datatype: ID
       description: |
         This value indicates the identity of a team. There are two possible meanings of TeamID:
-        - If the TeamID value is different from the SubjectID value, it means that the SubjectID designates a single individual, and the TeamID value identifies the team the individual belongs to.
-        - If the TeamID value is the same as the SubjectID value, it means that the SubjectID designates a team, and that the event is ascribed to the team as a whole rather than any individual member of the team.
+        * If the TeamID value is different from the SubjectID value, it means that the SubjectID designates a single individual, and the TeamID value identifies the team the individual belongs to.
+        * If the TeamID value is the same as the SubjectID value, it means that the SubjectID designates a team, and that the event is ascribed to the team as a whole rather than any individual member of the team.
+
         When this value is used, a Link Table should be created to map the TeamID to a list of SubjectIDs, when known. This should be done with two columns: the first column the TeamID, the second a single SubjectID, where the number of rows the TeamID appears in maps to the number of SubjectIDs.
 
     - name: LoggingErrorID
@@ -174,23 +229,53 @@ MainTable:
       description: |
         When true, this field indicates that an event was "fabricated" after the fact, rather than being directly logged by the original programming environment. This might occur when converting from another log format into ProgSnap2 format, or when supplemental information is added after the fact. For example, if a system only logs Compile.Error events, a Compile event may be assumed and fabricated to accompany these events. Or, if Compile.Error events are not logged, but can be derived from the code in post hoc analysis, these could be added as fabricated events. This column should be accompanied by documentation in the README that explains what assumptions were made when creating these fabricated events. Since it is always possible to make mistakes when fabricating events, marking these explicitly can be helpful in discovering possible mistakes.
 
+    # --- Event-specific Columns ---
 
-    # More columns...
+    - name: ParentEventID
+      requirement: EventSpecific
+      datatype: ID
+      description: |
+        Certain events are hierarchical, where multiple child events might be associated with a single parent event. In these cases, the parent event should be referenced in this column by its EventID value.
 
     - name: SessionID
       requirement: EventSpecific
       datatype: ID
-      description: TODO
-
-    - name: CodeStateSection
-      requirement: EventSpecific
-      datatype: SourceLocation
-      description: TODO
+      description: |
+        A session is generally defined as a distinct period of time during which a student is interacting with a tool/program. Sessions are somewhat ill-defined and may vary across datasets. Session IDs must be unique across subjects and across distinct sessions. This ID may be the EventID of the SessionStart event that initiated the session, or it may be derived independently.
 
     - name: ProjectID
       requirement: EventSpecific
       datatype: ID
-      description: TODO
+      description: |
+        A project is a collection of source files that can be opened and closed (in Project.* events). Note that a project may be distinct from an assignment or problem. For example, one assignment might extend another, in which case the student will load the same project and continue working on it.
+
+        Data producers should only generate Project.* events and ProjectID values if the underlying data source has an explicit concept of "project".
+
+    - name: ResourceID
+      requirement: EventSpecific
+      datatype: ID
+      description: |
+        Often students access resources while working on problems. Example resources include API documentation, online textbooks, and demo videos. In a dataset which logs student access to resources, each resource must be assigned a distinct ID. If resources are not changed across terms, their IDs should be reused.
+
+    - name: CodeStateSection
+      requirement: EventSpecific
+      datatype: SourceLocation
+      description: |
+        A CodeStateSection value names a single file or resource within a CodeState which is specifically associated with the event.  Examples:
+        * In a File.Create event, the CodeStateSection identifies the file created
+        * In a Compile.Error event, the CodeStateSection identifies the source file in which the compilation error occurs
+        Note that for events where there is both a "source" file/resource and a "destination" file/resource, the CodeStateSection value indicates the "source".  For example, for File.Copy and File.Rename events, the CodeStateSection names the "original" file.  (Note that in the case of File.Rename events, the CodeStateSection value identifies a file or resource in the previous CodeState.)
+        Note that a CodeStateSection may only refer to a single file.  Cases where multiple resources are accessed or modified at the same time (such as using "Save All" to save all files) should be represented as multiple events, each with its own distinct CodeStateSection.
+        Also note that CodeStateSections should not be used for CodeStates in the Table format, as all table data is contained in the same file.
+
+    - name: DestinationCodeStateSection
+      requirement: EventSpecific
+      datatype: SourceLocation
+      description: |
+        For events associated with two files or resources — a "source" and a "destination" — the DestinationCodeStateSection value specifies the destination resource.  For example, for File.Copy and File.Rename events, the DestinationCodeStateSection value specifies the "new" file or resource.
+
+        Note that this column should only contain a nonempty value if the CodeStateSection column contains a nonempty value.
+
 
     - name: EventInitiator
       requirement: EventSpecific
@@ -198,6 +283,7 @@ MainTable:
       description: |
         Events are typically performed by either the user, the tool, or the instructor. When known, this column should specify which one instigated the event.
         Note that user, instructor, and team members can initiate actions either directly or indirectly. A direct action is one the person purposefully makes (like typing or editing a program with mouse clicks); an indirect action is one that is caused by a user action, but not done directly by the user (like when a user accepts an autocomplete recommendation and the text is filled in).
+
         Users are encouraged to apply the built-in enum values whenever possible, but if a new value is necessary, the coder may define a new custom enum value and document the new value in the README.md.
 
   event_types:
