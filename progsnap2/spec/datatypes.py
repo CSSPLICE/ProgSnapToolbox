@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 from enum import Enum
 
+# TODO: Use config instead!
 _SHORT_STRING_LENGTH = 255
 _PATH_STRING_LENGTH = 2048
 class PS2Datatype(Enum):

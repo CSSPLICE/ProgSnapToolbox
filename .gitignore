@@ -2,3 +2,4 @@
 .vscode
 __pycache__/
 *.db
+progsnap2/api/api_config.yaml

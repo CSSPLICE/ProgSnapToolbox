@@ -50,6 +50,9 @@ def define_column(column_spec: SpecColumn):
     return SQLColumn(column_spec.name, col_type, **kwargs)
 
 
+# May make sense to create these tables each time,
+# and only create them when needed, since SQLAlchemy uses
+# this construct a lot
 def create_tables_from_schema(schema: ProgSnap2Spec, engine):
     metadata = MetaData()
 
