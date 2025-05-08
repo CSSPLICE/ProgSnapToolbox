@@ -1,58 +1,55 @@
 
 from abc import ABC, abstractmethod
+from progsnap2.database.codestate_writer import TableCodeStateWriter
 from progsnap2.database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataConfig
 
-from sqlalchemy import create_engine
+from sqlalchemy import Connection, create_engine
 from progsnap2.database.config import PS2DatabaseConfig, PS2DataConfig
-from progsnap2.database.sql_writer import SQLWriter
+from progsnap2.database.sql_writer import SQLContext, SQLWriter
+
+class DBWriter(ABC):
+    pass
 
 class DBWriterFactor(ABC):
-    def __init__(self, db_config: PS2DataConfig):
+    def __init__(self, db_config: PS2DataConfig, metadata):
         self.db_config = db_config
+        self.metadata = metadata
 
     @abstractmethod
     def __call__(self):
         pass
 
+    def create_codestate_writer(self, context: SQLContext):
+        code_state_representation = self.metadata.CodeStateRepresentation.lower()
+        if code_state_representation == 'table':
+            return TableCodeStateWriter(context)
+        elif code_state_representation == 'directory':
+            raise NotImplementedError("Directory code state representation not implemented yet")
+        elif code_state_representation == 'git':
+            raise NotImplementedError("Git code state representation not implemented yet")
+        else:
+            raise ValueError(f"Invalid code state representation: {code_state_representation}")
+
 class SQLWriterFactory(DBWriterFactor):
-    def __init__(self, db_config):
-        super().__init__(db_config)
+    def __init__(self, db_config, metadata):
+        super().__init__(db_config, metadata)
         self.engine = create_engine(db_config.sqlalchemy_url, echo=db_config.echo)
 
     def __call__(self):
         try:
             conn = self.engine.connect()
-            yield SQLWriter(conn)
+            context = SQLContext(conn, None) # TODO: Metadata!
+            writer = SQLWriter(context, self.create_codestate_writer(context))
+            yield writer
         finally:
             conn.close()
 
 
-def create_db_writer_factory(db_config: PS2DataConfig):
+def create_db_writer_factory(db_config: PS2DataConfig, metadata):
     if isinstance(db_config, PS2DatabaseConfig):
-        return SQLWriterFactory(db_config)
+        return SQLWriterFactory(db_config, metadata)
     elif isinstance(db_config, PS2CSVConfig):
-        # Implement CSV writer factory if needed
-        pass
-
-class DBWriter(ABC):
-    pass
-
-def create_db_writer(db_config: PS2DataConfig, metadata, engine):
-    codestate_representation = metadata.CodeStateRepresentation
-    if isinstance(db_config, PS2DatabaseConfig):
-        codestate_writer = create_codestate_table_writer(db_config, codestate_representation)
-    elif isinstance(db_config, PS2CSVConfig):
-        pass
-    else:
-        raise ValueError("Invalid database configuration")
-
-def create_codestate_table_writer(db_config: PS2DataConfig, code_state_representation):
-    code_state_representation = code_state_representation.lower()
-    if code_state_representation == 'table':
-        pass
-    elif code_state_representation == 'directory':
-        pass
-    elif code_state_representation == 'git':
-        pass
-    else:
-        raise ValueError(f"Invalid code state representation: {code_state_representation}")
+        # CSV Writer would be reasonable in a log translation context
+        # But really what's the advantage? I think we should only
+        # support SQL writing, but support SQL + CSV reading.
+        raise NotImplementedError("CSV writer not implemented yet")

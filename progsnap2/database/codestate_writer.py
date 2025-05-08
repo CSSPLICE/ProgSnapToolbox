@@ -5,6 +5,8 @@ import uuid
 from pydantic import BaseModel
 from sqlalchemy import Connection, MetaData, Table, insert
 
+from progsnap2.database.sql_writer import SQLContext
+
 
 class CodeStateSection(BaseModel):
     """
@@ -31,10 +33,10 @@ class CodeStateWriter(ABC):
 
 class TableCodeStateWriter(CodeStateWriter):
 
-    def __init__(self, table: Table, conn: Connection):
+    def __init__(self, context: SQLContext):
         super().__init__()
-        self.conn = conn
-        self.table = table
+        self.conn = context.conn
+        self.table = context.metadata.tables["CodeStates"]
 
     def add_codestate_and_get_ID(self, sections: list[CodeStateSection]) -> str:
         # Generate UUID for the code state
