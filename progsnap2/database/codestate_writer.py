@@ -42,6 +42,7 @@ class TableCodeStateWriter(CodeStateWriter):
         # Generate UUID for the code state
         code_state_id = str(uuid.uuid4())
         # Add the code state to the CodeStates table using a structured query
+        # TODO: Replace with constants!
         for section in sections:
             statement = insert(
                 self.table,

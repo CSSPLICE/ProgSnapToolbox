@@ -7,6 +7,7 @@ from progsnap2.database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataCo
 from sqlalchemy import Connection, create_engine
 from progsnap2.database.config import PS2DatabaseConfig, PS2DataConfig
 from progsnap2.database.sql_writer import SQLContext, SQLWriter
+from progsnap2.spec.enums import CodeStateRepresentation
 
 class DBWriterFactor(ABC):
     def __init__(self, db_config: PS2DataConfig, metadata):
@@ -18,12 +19,13 @@ class DBWriterFactor(ABC):
         pass
 
     def create_codestate_writer(self, context: SQLContext):
-        code_state_representation = self.metadata.CodeStateRepresentation.lower()
-        if code_state_representation == 'table':
+        # TODO: These aren't actually the same enum right now... so need to str convert
+        code_state_representation = str(self.metadata.CodeStateRepresentation)
+        if code_state_representation == CodeStateRepresentation.Table:
             return TableCodeStateWriter(context)
-        elif code_state_representation == 'directory':
+        elif code_state_representation == CodeStateRepresentation.Directory:
             raise NotImplementedError("Directory code state representation not implemented yet")
-        elif code_state_representation == 'git':
+        elif code_state_representation == CodeStateRepresentation.Git:
             raise NotImplementedError("Git code state representation not implemented yet")
         else:
             raise ValueError(f"Invalid code state representation: {code_state_representation}")
@@ -44,7 +46,6 @@ class SQLWriterFactory(DBWriterFactor):
 
 
 def create_db_writer_factory(api_config: PS2APIConfigBase):
-    print(api_config)
     db_config = api_config.database_config
     metadata = api_config.metadata
     if isinstance(db_config, PS2DatabaseConfig):

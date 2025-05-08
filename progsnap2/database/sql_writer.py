@@ -2,6 +2,7 @@ from sqlalchemy import insert
 from progsnap2.database.codestate_writer import CodeStateSection, CodeStateWriter
 from progsnap2.database.db_writer import DBWriter
 from progsnap2.database.sql_context import SQLContext
+from progsnap2.spec.enums import MainTableColumns as MTC, CoreTables
 
 class SQLWriter(DBWriter):
 
@@ -19,8 +20,8 @@ class SQLWriter(DBWriter):
 
         for event in events:
             if "TempCodeStateID" in event:
-                event["CodeStateID"] = temp_codestate_id_map[event["TempCodeStateID"]]
+                event[MTC.CodeStateID] = temp_codestate_id_map[event["TempCodeStateID"]]
                 del event["TempCodeStateID"]
 
-        main_table = self.context.metadata.tables["MainTable"]
+        main_table = self.context.metadata.tables[CoreTables.MainTable]
         statement = insert(main_table).values(events)

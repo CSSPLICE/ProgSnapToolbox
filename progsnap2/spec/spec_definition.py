@@ -8,7 +8,7 @@ from progsnap2.spec.datatypes import PS2Datatype
 
 class EnumValue(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str = None
 
 
 class EnumType(BaseModel):
@@ -23,7 +23,7 @@ class Requirement(Enum):
 class Property(BaseModel):
     name: str
     datatype: PS2Datatype
-    description: Optional[str] = None
+    description: str = None
 
     @field_validator("datatype", mode="before")
     def parse_datatype(cls, v):
@@ -40,9 +40,9 @@ class Metadata(BaseModel):
 
 class EventType(BaseModel):
     name: str
-    description: Optional[str] = None
-    required_columns: Optional[List[str]] = None
-    optional_columns: Optional[List[str]] = None
+    description: str = None
+    required_columns: List[str] = None
+    optional_columns: List[str] = None
 
     def is_column_specific_to_event(self, column_name: str) -> bool:
         return (self.required_columns and column_name in self.required_columns) or \
@@ -73,8 +73,9 @@ class MainTable(BaseModel):
 
 
 
-class LinkTable(BaseModel):
+class LinkTableSpec(BaseModel):
     name: str
+    description: str = None
     id_column_names: List[str]
     additional_columns: List[Column]
 
@@ -83,10 +84,20 @@ class ProgSnap2Spec(BaseModel):
     Metadata: Metadata
     EnumTypes: List[EnumType]
     MainTable: MainTable
-    LinkTables: List[LinkTable]
+    LinkTables: List[LinkTableSpec]
 
     def version(self) -> str:
         return self.Metadata.Version
+
+    @model_validator(mode="after")
+    def validate_link_table_id_cols(cls, values):
+        # Check if all ID columns in link tables are present in the main table
+        id_columns = {col.name for col in values.MainTable.columns}
+        for link_table in values.LinkTables:
+            for id_col in link_table.id_column_names:
+                if id_col not in id_columns:
+                    raise ValueError(f"ID column '{id_col}' in LinkTable '{link_table.name}' not defined in MainTable")
+        return values
 
 def load_spec(yaml_file: str) -> ProgSnap2Spec:
     with open(yaml_file, "r", encoding='utf-8') as f:

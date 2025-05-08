@@ -1,0 +1,122 @@
+
+from progsnap2.spec.spec_definition import LinkTableSpec, ProgSnap2Spec, EnumType, Column
+
+
+def generate_enums_for_spec(spec: ProgSnap2Spec):
+    """
+    Generate python enum code from a ProgSnap2 spec.
+    """
+    sections = []
+    sections.append(generate_imports())
+    sections.append(generate_core_tables())
+    sections.append(generate_metadata_properties_enum(spec))
+    sections.append(generate_main_table_columns_enum(spec))
+    sections.append(generate_event_type_enum(spec))
+    sections.append(generate_link_table_names_enum(spec))
+
+    for link_table in spec.LinkTables:
+        sections.append(generate_link_table_columns_enum(link_table, spec))
+
+    for enum_type in spec.EnumTypes:
+        sections.append(generate_defined_enum(enum_type))
+
+    return "\n\n".join(sections)
+
+def generate_imports() -> str:
+    """
+    Generate the import statements for the enums.
+    """
+    return "from enum import Enum"
+
+def format_docstring(doc: str, indent: str) -> str:
+    """
+    Format the docstring for the enum.
+    """
+    if '\n' not in doc:
+        return f"{indent}\"\"\"{doc}\"\"\"\n"
+    lines = doc.split('\n')
+    formatted_lines = [f"{indent}{line}" for line in lines]
+    return f'{indent}"""\n' + "\n".join(formatted_lines) + f'\n{indent}"""' + "\n\n"
+
+def generate_enum(enum_name: str, enum_values: list[str], doc: str = None, docs: list[str] = None) -> str:
+    enum_str = f"class {enum_name}(Enum, str):\n"
+    if doc:
+        enum_str += format_docstring(doc, "    ")
+    for value, value_doc in zip(enum_values, docs or [None] * len(enum_values)):
+        key = value.replace('.', '').replace('-', '_').replace(' ', '_')
+        enum_str += f"    {key} = '{value}'\n"
+        if value_doc:
+            enum_str += format_docstring(value_doc, "    ")
+    return enum_str
+
+
+def generate_core_tables() -> str:
+    enum_name = "CoreTables"
+    enum_values = ["MainTable", "Metadata", "CodeStates"]
+    doc = "Primary tables in the database."
+    return generate_enum(enum_name, enum_values, doc)
+
+
+def generate_defined_enum(enum_type: EnumType) -> str:
+    """
+    Generate python enum code from a ProgSnap2 enum type.
+    """
+    enum_name = enum_type.name
+    enum_values = [value.name for value in enum_type.values]
+    docs = [value.description for value in enum_type.values]
+    return generate_enum(enum_name, enum_values, None, docs)
+
+def generate_metadata_properties_enum(spec: ProgSnap2Spec) -> str:
+    """
+    Generate python enum code from a ProgSnap2 metadata properties.
+    """
+    enum_name = "MetadataProperties"
+    enum_values = [property.name for property in spec.Metadata.properties]
+    doc = "Valid properties for the metadata table."
+    docs = [property.description for property in spec.Metadata.properties]
+    return generate_enum(enum_name, enum_values, doc, docs)
+
+def generate_main_table_columns_enum(spec: ProgSnap2Spec) -> str:
+    """
+    Generate python enum code from a ProgSnap2 main table columns.
+    """
+    enum_name = "MainTableColumns"
+    enum_values = [column.name for column in spec.MainTable.columns]
+    doc = "Valid columns for the MainTable."
+    docs = [column.description for column in spec.MainTable.columns]
+    return generate_enum(enum_name, enum_values, doc, docs)
+
+def generate_event_type_enum(spec: ProgSnap2Spec) -> str:
+    """
+    Generate python enum code from a ProgSnap2 event types.
+    """
+    enum_name = "EventTypes"
+    enum_values = [event_type.name for event_type in spec.MainTable.event_types]
+    doc = "Possible values for the EventType columns of the MainTable."
+    docs = [event_type.description for event_type in spec.MainTable.event_types]
+    return generate_enum(enum_name, enum_values, doc, docs)
+
+def generate_link_table_names_enum(spec: ProgSnap2Spec) -> str:
+    """
+    Generate python enum code from a ProgSnap2 link table names.
+    """
+    enum_name = "LinkTableNames"
+    enum_values = [link_table.name for link_table in spec.LinkTables]
+    doc = "Defined LinkTables"
+    docs = [link_table.description for link_table in spec.LinkTables]
+    return generate_enum(enum_name, enum_values, doc, docs)
+
+def generate_link_table_columns_enum(link_table_spec: LinkTableSpec, ps2_spec: ProgSnap2Spec) -> str:
+    """
+    Generate python enum code from a ProgSnap2 link table columns.
+    """
+    enum_name = f"{link_table_spec.name}Columns"
+    enum_values = [id_column for id_column in link_table_spec.id_column_names]
+    enum_values += [column.name for column in link_table_spec.additional_columns]
+    doc = f"Valid columns for the {link_table_spec.name} LinkTable."
+    matching_columns = []
+    for id_column in link_table_spec.id_column_names:
+        matching_columns.append([col for col in ps2_spec.MainTable.columns if col.name == id_column][0])
+    docs = [column.description for column in matching_columns]
+    docs += [column.description for column in link_table_spec.additional_columns]
+    return generate_enum(enum_name, enum_values)
