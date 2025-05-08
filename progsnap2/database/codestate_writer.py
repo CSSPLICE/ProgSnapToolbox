@@ -5,7 +5,7 @@ import uuid
 from pydantic import BaseModel
 from sqlalchemy import Connection, MetaData, Table, insert
 
-from progsnap2.database.sql_writer import SQLContext
+from progsnap2.database.sql_context import SQLContext
 
 
 class CodeStateSection(BaseModel):

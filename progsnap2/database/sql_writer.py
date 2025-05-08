@@ -1,15 +1,7 @@
-
-
-
-from dataclasses import dataclass
-from sqlalchemy import Connection, MetaData, insert
+from sqlalchemy import insert
 from progsnap2.database.codestate_writer import CodeStateSection, CodeStateWriter
 from progsnap2.database.db_writer import DBWriter
-
-@dataclass
-class SQLContext:
-    conn: Connection
-    metadata: MetaData
+from progsnap2.database.sql_context import SQLContext
 
 class SQLWriter(DBWriter):
 
