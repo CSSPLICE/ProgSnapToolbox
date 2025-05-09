@@ -3,7 +3,7 @@ from pydantic import BaseModel, field_validator, model_validator
 from enum import Enum
 import yaml
 
-from progsnap2.spec.datatypes import PS2Datatype
+from spec.datatypes import PS2Datatype
 
 
 class EnumValue(BaseModel):

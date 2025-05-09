@@ -3,9 +3,9 @@ from pydantic import BaseModel, create_model
 from enum import Enum
 from datetime import datetime
 
-from progsnap2.database.codestate_writer import CodeStateSection
-from progsnap2.spec import datatypes
-from progsnap2.spec.spec_definition import Column, EnumType, EventType, ProgSnap2Spec, Requirement
+from database.codestate.codestate_writer import CodeStateSection
+from spec import datatypes
+from spec.spec_definition import Column, EnumType, EventType, ProgSnap2Spec, Requirement
 
 
 class TempCodeState(BaseModel):

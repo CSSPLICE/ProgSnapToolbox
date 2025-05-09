@@ -1,8 +1,8 @@
 from sqlalchemy import insert
-from progsnap2.database.codestate_writer import CodeStateSection, CodeStateWriter
-from progsnap2.database.db_writer import DBWriter
-from progsnap2.database.sql_context import SQLContext
-from progsnap2.spec.enums import MainTableColumns as MTC, CoreTables
+from database.codestate.codestate_writer import CodeStateSection, CodeStateWriter
+from database.db_writer import DBWriter
+from database.sql_context import SQLContext
+from spec.enums import MainTableColumns as MTC, CoreTables
 
 class SQLWriter(DBWriter):
 

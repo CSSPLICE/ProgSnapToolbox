@@ -1,8 +1,8 @@
 import os
 from git import Repo
 
-from progsnap2.database.codestate.codestate_writer import CodeStateWriter
-from progsnap2.database.codestate.codestate_writer import CodeStateEntry
+from database.codestate.codestate_writer import CodeStateWriter
+from database.codestate.codestate_writer import CodeStateEntry
 
 # TODO: Handle locking and other things?
 # This would probably require a fair bit of work, may be out of scope

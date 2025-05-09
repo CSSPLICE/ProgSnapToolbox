@@ -1,0 +1,15 @@
+
+database_config:
+  root_path: ./test-data/
+  sqlalchemy_url: sqlite:///example.db
+  echo: true
+
+add_server_timestamps: true
+
+metadata:
+  Version: "1.0"
+  IsEventOrderingConsistent: true
+  EventOrderScope: Restricted
+  EventOrderScopeColumns: SessionID
+  CodeStateRepresentation: Table
+  ProgramInputLinkTable: ""

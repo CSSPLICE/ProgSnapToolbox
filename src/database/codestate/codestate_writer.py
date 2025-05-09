@@ -27,7 +27,8 @@ class CodeStateEntry():
 
 class CodeStateWriter(ABC):
 
-    def get_codestate_id_from_hash(self, sections: list[CodeStateSection]) -> str:
+    def get_codestate_id_from_hash(self, codestate: CodeStateEntry) -> str:
+        sections = codestate.sections
         # Sort sections to ensure consistent ID generation
         sections = sorted(sections, key=lambda x: x.CodeStateSection or "")
         # Generate a unique ID based on the sections

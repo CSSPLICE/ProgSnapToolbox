@@ -1,6 +1,6 @@
 
 import os
-from progsnap2.database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
+from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
 
 
 class DirectoryTableWriter(CodeStateWriter):

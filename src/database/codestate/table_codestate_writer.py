@@ -1,7 +1,7 @@
 from sqlalchemy import insert
-from progsnap2.database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
-from progsnap2.database.sql_context import SQLContext
-from progsnap2.spec.enums import CodeStatesTableColumns as Cols
+from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
+from database.sql_context import SQLContext
+from spec.enums import CodeStatesTableColumns as Cols
 
 
 class TableCodeStateWriter(CodeStateWriter):

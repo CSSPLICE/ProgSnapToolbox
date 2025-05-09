@@ -1,13 +1,13 @@
 
 from abc import ABC, abstractmethod
-from progsnap2.api.config import PS2APIConfigBase
-from progsnap2.database.codestate_writer import TableCodeStateWriter
-from progsnap2.database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataConfig
+from api.config import PS2APIConfigBase
+from database.codestate.codestate_writer import TableCodeStateWriter
+from database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataConfig
 
 from sqlalchemy import Connection, create_engine
-from progsnap2.database.config import PS2DatabaseConfig, PS2DataConfig
-from progsnap2.database.sql_writer import SQLContext, SQLWriter
-from progsnap2.spec.enums import CodeStateRepresentation
+from database.config import PS2DatabaseConfig, PS2DataConfig
+from database.sql_writer import SQLContext, SQLWriter
+from spec.enums import CodeStateRepresentation
 
 class DBWriterFactor(ABC):
     def __init__(self, db_config: PS2DataConfig, metadata):

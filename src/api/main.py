@@ -4,11 +4,11 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Type
 
-from progsnap2.api.config import load_api_config
-from progsnap2.api.events import TempCodeState, DataModelGenerator
-from progsnap2.database.db_writer import DBWriter
-from progsnap2.database.db_writer_factory import create_db_writer_factory
-from progsnap2.spec.spec_definition import load_spec
+from api.config import load_api_config
+from api.events import TempCodeState, DataModelGenerator
+from database.db_writer import DBWriter
+from database.db_writer_factory import create_db_writer_factory
+from spec.spec_definition import load_spec
 
 spec = load_spec("progsnap2/spec/progsnap2.yaml")
 

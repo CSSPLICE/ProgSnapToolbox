@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "progsnap2"
+version = "0.1.0"
+authors = [
+  { name="Thomas Price", email="twprice@ncsu.edu" },
+]
+description = "A project for ProgSnap2 data specification, API, and database."
+readme = "README.md"
+requires-python = ">=3.8" # TODO: Confirm minimum version
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+#[project.urls]
+#"Homepage" = "https://your-project-url.example.com"  # Replace with your project's URL
+#"Bug Tracker" = "https://your-bug-tracker-url.example.com/issues" # Replace with your issue tracker URL
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]

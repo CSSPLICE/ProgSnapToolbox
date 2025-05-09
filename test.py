@@ -1,9 +1,9 @@
 
 from sqlalchemy import create_engine
-from progsnap2.database.setup import create_tables_from_schema
-from progsnap2.spec.gen_client import generate_ts_methods
-from progsnap2.spec.gen_enums import generate_enums_for_spec
-from progsnap2.spec.spec_definition import load_spec
+from database.setup import create_tables_from_schema
+from spec.gen_client import generate_ts_methods
+from spec.gen_enums import generate_enums_for_spec
+from spec.spec_definition import load_spec
 
 if __name__ == "__main__":
     # Load schema
