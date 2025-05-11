@@ -31,10 +31,19 @@ class CodestateGenerator():
 
 gen = CodestateGenerator()
 
-def do_test_codestate_writer(writer: CodeStateWriter):
+def cleanup():
     # Clean up the temporary directory from prior tests
     import shutil
-    shutil.rmtree(temp_dir)
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+
+
+
+def test_directory_codestate_writer():
+    # Initialize the DirectoryTableWriter
+    writer = DirectoryTableWriter(temp_dir)
+
+    cleanup()
 
     # Add the codestate and get its ID
     codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
@@ -49,17 +58,23 @@ def do_test_codestate_writer(writer: CodeStateWriter):
     assert os.path.exists(os.path.join(temp_dir, gen.codestate2.grouping_id, codestate_id_2))
     assert codestate_id_2 != codestate_id_1, "Different codestates should return different IDs"
 
-def test_directory_codestate_writer():
-    # Initialize the DirectoryTableWriter
-    writer = DirectoryTableWriter(temp_dir)
-    # Run the test
-    do_test_codestate_writer(writer)
-
 def test_git_codestate_writer():
     # Initialize the DirectoryTableWriter
     writer = GitCodeStateWriter(temp_dir)
-    # Run the test
-    do_test_codestate_writer(writer)
+
+    cleanup()
+
+    # Add the codestate and get its ID
+    codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
+
+    # Check if the directory was created
+    assert os.path.exists(os.path.join(temp_dir, gen.codestate1.grouping_id, gen.codestate1.ProjectID))
+
+    codestate_id_1_again = writer.add_codestate_and_get_id(gen.codestate1)
+    assert codestate_id_1_again == codestate_id_1, "Duplicate codestate should return the same ID"
+
+    codestate_id_2 = writer.add_codestate_and_get_id(gen.codestate2)
+    assert codestate_id_2 != codestate_id_1, "Different codestates should return different IDs"
 
 
 

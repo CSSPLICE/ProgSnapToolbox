@@ -1,4 +1,5 @@
 import os
+import shutil
 from git import Repo
 
 from database.codestate.codestate_writer import CodeStateWriter
@@ -23,11 +24,21 @@ class GitCodeStateWriter(CodeStateWriter):
         else:
             repo = Repo(directory)
 
-        # Delete all non-git files in the directory
-        for root, _, files in os.walk(directory):
-            for file in files:
-                if file != ".git":
-                    os.remove(os.path.join(root, file))
+        # Delete all files not under the .git folder
+        for item in os.listdir(directory):
+            item_path = os.path.join(directory, item)
+            if item == ".git":
+                continue
+            try:
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                    print(f"Deleted file: {item_path}")
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                    print(f"Deleted folder: {item_path}")
+            except Exception as e:
+                # TODO: Handle errors more gracefully
+                print(f"Error deleting '{item_path}': {e}")
 
         # Add the code state to the git repo
         for section in codestate.sections:
@@ -48,4 +59,7 @@ class GitCodeStateWriter(CodeStateWriter):
         # Get the commit hash
         commit = repo.head.commit
         # Return the commit hash as the ID
-        return commit.hexsha
+        hex = commit.hexsha
+        repo.close()
+
+        return hex
