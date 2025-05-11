@@ -38,7 +38,6 @@ class DataModelGenerator:
     """
 
     MainTableEvent: type
-    MainTableEvent: type
     main_event_additional_columns: List[type] = []
     AnyAdditionalColumns: type
 

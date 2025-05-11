@@ -1,5 +1,5 @@
-from typing import List, Optional
-from pydantic import BaseModel, field_validator, model_validator
+from typing import Dict, List, Optional
+from pydantic import BaseModel, computed_field, field_validator, model_validator
 from enum import Enum
 import yaml
 
@@ -56,6 +56,13 @@ class MainTable(BaseModel):
     columns: List[Column]
     event_types: List[EventType]
 
+    @computed_field
+    def _event_type_map(self) -> Dict[str, EventType]:
+        return {self.event_types.name: event_type for event_type in self.event_types}
+
+    def get_event_type(self, event_type_name: str) -> Optional[EventType]:
+        return self._event_type_map.get(event_type_name)
+
     @model_validator(mode="after")
     def validate_event_types(cls, values):
         # Check if all required columns are present in the main table
@@ -88,6 +95,9 @@ class ProgSnap2Spec(BaseModel):
 
     def version(self) -> str:
         return self.Metadata.Version
+
+    def get_item_by_name(self, name: str) -> Optional[Item]:
+        return self.item_lookup.get(name)
 
     @model_validator(mode="after")
     def validate_link_table_id_cols(cls, values):
