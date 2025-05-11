@@ -1,5 +1,6 @@
 
 from spec.spec_definition import LinkTableSpec, ProgSnap2Spec, EnumType, Column
+import keyword
 
 
 def generate_enums_for_spec(spec: ProgSnap2Spec):
@@ -27,7 +28,7 @@ def _generate_imports() -> str:
     """
     Generate the import statements for the enums.
     """
-    return "from enum import Enum"
+    return "from enum import StrEnum"
 
 def format_docstring(doc: str, indent: str) -> str:
     """
@@ -36,17 +37,20 @@ def format_docstring(doc: str, indent: str) -> str:
     if '\n' not in doc:
         return f"{indent}\"\"\"{doc}\"\"\"\n"
     lines = doc.split('\n')
-    formatted_lines = [f"{indent}{line}" for line in lines]
+    formatted_lines = ["" if line.strip() == "" else f"{indent}{line}" for line in lines]
     if formatted_lines[-1].strip() == "":
         formatted_lines.pop()
     return f'{indent}"""\n' + "\n".join(formatted_lines) + f'\n{indent}"""' + "\n\n"
 
+
 def generate_enum(enum_name: str, enum_values: list[str], doc: str = None, docs: list[str] = None) -> str:
-    enum_str = f"class {enum_name}(Enum, str):\n"
+    enum_str = f"class {enum_name}(StrEnum):\n"
     if doc:
         enum_str += format_docstring(doc, "    ")
     for value, value_doc in zip(enum_values, docs or [None] * len(enum_values)):
         key = value.replace('.', '').replace('-', '_').replace(' ', '_')
+        if key in keyword.kwlist:
+            key = f"{key}_"
         enum_str += f"    {key} = '{value}'\n"
         if value_doc:
             enum_str += format_docstring(value_doc, "    ")

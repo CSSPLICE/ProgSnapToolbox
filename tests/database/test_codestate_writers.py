@@ -1,7 +1,7 @@
 
 import os
 import copy
-from database.codestate.codestate_writer import CodeStateEntry, CodeStateSection
+from database.codestate.codestate_writer import CodeStateEntry, CodeStateSection, CodeStateWriter
 from database.codestate.directory_codestate_writer import DirectoryTableWriter
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 
@@ -31,7 +31,7 @@ class CodestateGenerator():
 
 gen = CodestateGenerator()
 
-def do_test_codestate_writer(writer):
+def do_test_codestate_writer(writer: CodeStateWriter):
     # Clean up the temporary directory from prior tests
     import shutil
     shutil.rmtree(temp_dir)

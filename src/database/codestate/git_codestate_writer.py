@@ -40,8 +40,8 @@ class GitCodeStateWriter(CodeStateWriter):
         # Add all files to the repo
         repo.git.add(A=True)
 
-        # Check whether anything has changed
-        if repo.is_dirty(untracked_files=True):
+        # Check whether anything has changed or if this is the first commit
+        if repo.is_dirty(untracked_files=True) or not repo.head.is_valid():
             # Commit the changes
             repo.index.commit(f"Automatic update")
 

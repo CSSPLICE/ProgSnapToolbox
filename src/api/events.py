@@ -6,6 +6,7 @@ from datetime import datetime
 from database.codestate.codestate_writer import CodeStateSection
 from spec import datatypes
 from spec.spec_definition import Column, EnumType, EventType, ProgSnap2Spec, Requirement
+from spec.enums import EventTypes
 
 
 class TempCodeState(BaseModel):
@@ -20,7 +21,8 @@ class MainTableEventBase(BaseModel):
     """
     A class representing an event in the main table.
     """
-    TempCodeStateID: str
+    # TODO: Figure out what to do with the CodeStateID
+    # TempCodeStateID: str
 
 
 # TODO: Explore if we can add documentation to fields or enum values
@@ -54,10 +56,11 @@ class DataModelGenerator:
         """
         Generate the event type enum type.
         """
-        return Enum("EventType", {
-            v.name: v.name
-            for v in self.ps2_spec.MainTable.event_types
-        })
+        # return Enum("EventType", {
+        #     v.name: v.name
+        #     for v in self.ps2_spec.MainTable.event_types
+        # })
+        return EventTypes
 
     def get_enum_for_type(self, enum_definition: EnumType):
         """

@@ -58,7 +58,7 @@ class MainTable(BaseModel):
 
     @computed_field
     def _event_type_map(self) -> Dict[str, EventType]:
-        return {self.event_types.name: event_type for event_type in self.event_types}
+        return {event_type.name: event_type for event_type in self.event_types}
 
     def get_event_type(self, event_type_name: str) -> Optional[EventType]:
         return self._event_type_map.get(event_type_name)
@@ -95,9 +95,6 @@ class ProgSnap2Spec(BaseModel):
 
     def version(self) -> str:
         return self.Metadata.Version
-
-    def get_item_by_name(self, name: str) -> Optional[Item]:
-        return self.item_lookup.get(name)
 
     @model_validator(mode="after")
     def validate_link_table_id_cols(cls, values):

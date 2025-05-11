@@ -1,20 +1,20 @@
-from enum import Enum
+from enum import StrEnum
 
-class CoreTables(Enum, str):
+class CoreTables(StrEnum):
     """Primary tables in the database."""
     MainTable = 'MainTable'
     Metadata = 'Metadata'
     CodeStates = 'CodeStates'
 
 
-class CodeStatesTableColumns(Enum, str):
+class CodeStatesTableColumns(StrEnum):
     """Valid columns for the CodeStates table."""
     CodeStateID = 'CodeStateID'
     Code = 'Code'
     CodeStateSection = 'CodeStateSection'
 
 
-class MetadataProperties(Enum, str):
+class MetadataProperties(StrEnum):
     """Valid properties for the metadata table."""
     Version = 'Version'
     """
@@ -50,7 +50,7 @@ class MetadataProperties(Enum, str):
 
 
 
-class MainTableColumns(Enum, str):
+class MainTableColumns(StrEnum):
     """Valid columns for the MainTable."""
     EventType = 'EventType'
     """
@@ -202,7 +202,7 @@ class MainTableColumns(Enum, str):
 
     DestinationCodeStateSection = 'DestinationCodeStateSection'
     """
-    For events associated with two files or resources � a "source" and a "destination" � the DestinationCodeStateSection value specifies the destination resource.  For example, for File.Copy and File.Rename events, the DestinationCodeStateSection value specifies the "new" file or resource.
+    For events associated with two files or resources — a "source" and a "destination" — the DestinationCodeStateSection value specifies the destination resource.  For example, for File.Copy and File.Rename events, the DestinationCodeStateSection value specifies the "new" file or resource.
 
     Note that this column should only contain a nonempty value if the CodeStateSection column contains a nonempty value.
     """
@@ -227,7 +227,7 @@ class MainTableColumns(Enum, str):
 
     CompileMessageType = 'CompileMessageType'
     """
-    The type/ID of compile message provided. If no error or warning was given, the string �Success� should be used. The types of errors and warnings used will otherwise vary by language; for example, a Python compile message type might be a �SyntaxError' or an �IndentationError'.
+    The type/ID of compile message provided. If no error or warning was given, the string “Success” should be used. The types of errors and warnings used will otherwise vary by language; for example, a Python compile message type might be a ‘SyntaxError' or an ‘IndentationError'.
     """
 
     CompileMessageData = 'CompileMessageData'
@@ -237,7 +237,7 @@ class MainTableColumns(Enum, str):
 
     SourceLocation = 'SourceLocation'
     """
-    A SourceLocation value represents a location or region within a source file, associated with a compiler diagnostic, static analysis warning, or other message about program source. It can also describe the location of an edit in source code during File.Edit events. Note that due to the large number of ways file contents could change as a result of a File.Edit event, the SourceLocation value associated with a File.Edit event (if any) should be considered to be a �hint� regarding the location of the change(s) represented by the event. The true change corresponding to a File.Edit event is indicated by the changes to the event's CodeState relative to the previous CodeState.
+    A SourceLocation value represents a location or region within a source file, associated with a compiler diagnostic, static analysis warning, or other message about program source. It can also describe the location of an edit in source code during File.Edit events. Note that due to the large number of ways file contents could change as a result of a File.Edit event, the SourceLocation value associated with a File.Edit event (if any) should be considered to be a “hint” regarding the location of the change(s) represented by the event. The true change corresponding to a File.Edit event is indicated by the changes to the event's CodeState relative to the previous CodeState.
     """
 
     ExecutionID = 'ExecutionID'
@@ -295,19 +295,19 @@ class MainTableColumns(Enum, str):
 
     ProgramOutput = 'ProgramOutput'
     """
-    Programs often produce output at the end of a run or test. The ProgramOutput value specifies the URL which records the program output. The URL will typically refer to an �internal� file within the dataset's Resources directory. Note that ProgramOutput is intended to capture the �standard� output channel of the program, i.e., stdout in C, cout in C++, System.out in Java, etc.
+    Programs often produce output at the end of a run or test. The ProgramOutput value specifies the URL which records the program output. The URL will typically refer to an “internal” file within the dataset's Resources directory. Note that ProgramOutput is intended to capture the “standard” output channel of the program, i.e., stdout in C, cout in C++, System.out in Java, etc.
 
     ProgramInput and ProgramOutput are all listed as recommended, not required, for Run.* events. However, data collectors are strongly encouraged to provide information on the input/output whenever possible. These values should only be left blank when it is impossible to present the data directly (for example, if the output is an interactive animation that cannot be stored statically).
     """
 
     ProgramErrorOutput = 'ProgramErrorOutput'
     """
-    Programs often produce error output at the end of a run or test. The ProgramErrorOutput value specifies the URL which records the program's error channel output. The URL will typically refer to an �internal� file within the dataset's Resources directory. Note that ProgramErrorOutput is intended to capture the �error� output channel of the program, i.e., stderr in C, cerr in C++, System.err in Java, etc.
+    Programs often produce error output at the end of a run or test. The ProgramErrorOutput value specifies the URL which records the program's error channel output. The URL will typically refer to an “internal” file within the dataset's Resources directory. Note that ProgramErrorOutput is intended to capture the “error” output channel of the program, i.e., stderr in C, cerr in C++, System.err in Java, etc.
     """
 
     InterventionCategory = 'InterventionCategory'
     """
-    An Intervention event is an interaction with the subject initiated during the programming process; for example, showing the students a targeted feedback message when they fail a specific test case. We include common intervention categories here, but new ones with names starting with the prefix �X-� may be used. Common interventions should be recommended for inclusion in future versions of ProgSnap 2.
+    An Intervention event is an interaction with the subject initiated during the programming process; for example, showing the students a targeted feedback message when they fail a specific test case. We include common intervention categories here, but new ones with names starting with the prefix “X-” may be used. Common interventions should be recommended for inclusion in future versions of ProgSnap 2.
 
     Note that Compile and Run events are not interventions; these events are ubiquitous enough that they have been given their own event types.
     """
@@ -324,7 +324,7 @@ class MainTableColumns(Enum, str):
 
 
 
-class EventTypes(Enum, str):
+class EventTypes(StrEnum):
     """Possible values for the EventType columns of the MainTable."""
     SessionStart = 'Session.Start'
     """Marks the start of a work session."""
@@ -374,23 +374,23 @@ class EventTypes(Enum, str):
     """Indicates that an intervention such as a hint was done."""
 
 
-class LinkTableNames(Enum, str):
+class LinkTableNames(StrEnum):
     """Defined LinkTables"""
     LinkSubject = 'LinkSubject'
 
 
-class LinkSubjectColumns(Enum, str):
+class LinkSubjectColumns(StrEnum):
     SubjectID = 'SubjectID'
     MidtermExamScore = 'MidtermExamScore'
 
 
-class CodeStateRepresentation(Enum, str):
+class CodeStateRepresentation(StrEnum):
     Table = 'Table'
     Directory = 'Directory'
     Git = 'Git'
 
 
-class EventInitiator(Enum, str):
+class EventInitiator(StrEnum):
     UserDirectAction = 'UserDirectAction'
     """Indicates that the user directly instigated the action."""
     UserIndirectAction = 'UserIndirectAction'
@@ -409,16 +409,16 @@ class EventInitiator(Enum, str):
     """Indicates that a team member indirectly caused the event; for example, if two students are pair-programming on a shared screen."""
 
 
-class EventOrderScope(Enum, str):
+class EventOrderScope(StrEnum):
     Global = 'Global'
     """Indicates that the Order column values are intended to be meaningful to determine the order of all events (globally) in the dataset."""
     Restricted = 'Restricted'
     """Indicates that the Order column values are only comparable between events with identical values for all of the columns specified by the EventOrderScopeColumns property"""
-    None = 'None'
+    None_ = 'None'
     """Indicates that the Order column values should never be assumed to determine an ordering for any events; in other words, the events are not ordered."""
 
 
-class EditType(Enum, str):
+class EditType(StrEnum):
     Insert = 'Insert'
     """Indicates that one or more characters or values have been added."""
     Delete = 'Delete'
@@ -441,20 +441,20 @@ class EditType(Enum, str):
     """Any generic edit that can not be described by the edits listed above. If your dataset contains a new category of edits not defined here, we recommend defining a custom value for this enumeration, rather than using GenericEdit."""
 
 
-class CompileResult(Enum, str):
+class CompileResult(StrEnum):
     Success = 'Success'
     Warning = 'Warning'
     Error = 'Error'
 
 
-class ExecutionResult(Enum, str):
+class ExecutionResult(StrEnum):
     Success = 'Success'
     Timeout = 'Timeout'
     Error = 'Error'
     TestFailed = 'TestFailed'
 
 
-class InterventionCategory(Enum, str):
+class InterventionCategory(StrEnum):
     Feedback = 'Feedback'
     Hint = 'Hint'
     CodeHighlight = 'CodeHighlight'

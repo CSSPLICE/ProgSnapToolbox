@@ -2,8 +2,8 @@ from datetime import datetime
 from sqlalchemy import MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum
 from sqlalchemy.dialects.sqlite import DATETIME
 
-from ..spec.datatypes import PS2Datatype
-from ..spec.spec_definition import ProgSnap2Spec, Property, Requirement, Column as SpecColumn
+from spec.datatypes import PS2Datatype
+from spec.spec_definition import ProgSnap2Spec, Property, Requirement, Column as SpecColumn
 
 
 from sqlalchemy import Text, String, Integer, Float, Boolean
