@@ -4,7 +4,7 @@ from spec.enums import CodeStateRepresentation
 from spec.spec_definition import ProgSnap2Spec
 
 from datetime import datetime
-from sqlalchemy import Connection, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum
+from sqlalchemy import Connection, Index, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum, UniqueConstraint
 from sqlalchemy.dialects.sqlite import DATETIME
 
 from spec.datatypes import PS2Datatype
@@ -113,12 +113,16 @@ class SQLTableManager:
             )
             self.link_tables[link_table.name] = tbl
 
+        # TODO: Replace hard-coded values with enum names
         if self.metadata_values.CodeStateRepresentation == CodeStateRepresentation.Table:
+
             self.codestates_table = Table(
                 "CodeStates", metadata,
-                SQLColumn("CodeStateID", id_datatype, primary_key=True),
+                SQLColumn("CodeStateID", id_datatype),
                 SQLColumn("CodeStateSection", path_datatype, nullable=True),
                 SQLColumn("Code", Text(), nullable=False),
+                UniqueConstraint("CodeStateID", "CodeStateSection", name="uq_codestate_id_section"),
+                Index("ix_codestate_id", "CodeStateID"),
             )
 
     def create_tables(self, conn: Connection):

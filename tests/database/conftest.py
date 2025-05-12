@@ -28,6 +28,7 @@ def cleanup_temp_dir():
     import shutil
     import errno
 
+    # TODO: Warn/error if file is actually in use...
     def handle_remove_readonly(func, path, exc):
         print (f"Error removing {path}: {exc}")
         excvalue = exc[1]

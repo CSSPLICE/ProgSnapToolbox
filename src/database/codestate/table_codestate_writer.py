@@ -26,14 +26,11 @@ class TableCodeStateWriter(CodeStateWriter):
 
             # Add the code state to the CodeStates table using a structured query
             for section in codestate.sections:
-                statement = insert(
-                    self.table,
-                    values={
+                statement = self.table.insert().values(**{
                         Cols.CodeStateID: codestate_id,
                         Cols.Code: section.Code,
                         Cols.CodeStateSection: section.CodeStateSection
-                    }
-                )
+                })
                 self.conn.execute(statement)
         return codestate_id
 
