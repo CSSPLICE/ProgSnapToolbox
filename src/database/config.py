@@ -1,12 +1,46 @@
 
 
+import os
 from typing import Optional
 from pydantic import BaseModel, create_model
+import yaml
 
-from ..spec.spec_definition import Metadata
+from spec.spec_definition import Metadata, ProgSnap2Spec
+
+def create_metadata_values_model(metadata_spec: Metadata) -> type[BaseModel]:
+    fields = {}
+    for property in metadata_spec.properties:
+        fields[property.name] = (property.datatype.python_type, ...)
+    return create_model("MetadataValues", **fields)
 
 class PS2DataConfig(BaseModel):
     root_path: str
+    metadata: object
+
+    @property
+    def codestates_dir(self) -> str:
+        return os.path.join(self.root_path, "CodeStates")
+
+    # TODO: I don't love that this has multiple possible types
+    # so maybe require the spec to load it? Not sure... Or create
+    # a MetadataValuesBase calss...
+    def validate_metadata(self, spec: ProgSnap2Spec) -> bool:
+        metadata_class = create_metadata_values_model(spec.Metadata)
+        try:
+            self.metadata = metadata_class(**self.metadata)
+            return True
+        except ValueError as e:
+            print(f"Metadata validation error: {e}")
+            return False
+
+    @classmethod
+    def from_yaml(cls, yaml_path: str, spec: ProgSnap2Spec = None) -> "PS2DataConfig":
+        with open(yaml_path, "r") as file:
+            data = yaml.safe_load(file)
+        config = cls(**data)
+        if spec:
+            config.validate_metadata(spec)
+        return config
 
 class PS2CSVConfig(PS2DataConfig):
     csv_path: str
@@ -17,9 +51,3 @@ class PS2DatabaseConfig(PS2DataConfig):
     enum_str_length: int = 255
     path_str_length: int = 2048
     echo: bool = False
-
-def create_metadata_values_model(metadata_spec: Metadata) -> type[BaseModel]:
-    fields = {}
-    for property in metadata_spec.properties:
-        fields[property.name] = (property.datatype.python_type, ...)
-    return create_model("MetadataValues", **fields)

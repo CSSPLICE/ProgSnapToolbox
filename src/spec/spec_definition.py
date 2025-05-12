@@ -106,7 +106,8 @@ class ProgSnap2Spec(BaseModel):
                     raise ValueError(f"ID column '{id_col}' in LinkTable '{link_table.name}' not defined in MainTable")
         return values
 
-def load_spec(yaml_file: str) -> ProgSnap2Spec:
-    with open(yaml_file, "r", encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-    return ProgSnap2Spec(**data)
+    @classmethod
+    def from_yaml(cls, yaml_path: str) -> "ProgSnap2Spec":
+        with open(yaml_path, "r", encoding='utf-8') as file:
+            data = yaml.safe_load(file)
+        return cls(**data)

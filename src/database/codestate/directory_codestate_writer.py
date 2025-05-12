@@ -3,7 +3,7 @@ import os
 from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
 
 
-class DirectoryTableWriter(CodeStateWriter):
+class DirectoryCodeStateWriter(CodeStateWriter):
 
     def __init__(self, code_states_dir_path: str):
         super().__init__()

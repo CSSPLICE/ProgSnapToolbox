@@ -8,6 +8,8 @@ from database.codestate.codestate_writer import CodeStateEntry
 # TODO: Handle locking and other things?
 # This would probably require a fair bit of work, may be out of scope
 # but I can at least create this MVP for now
+# TODO: PyGit creates readonly files, which can cause issues deleting directories
+# may be good to document this.
 class GitCodeStateWriter(CodeStateWriter):
 
     def __init__(self, code_states_dir_path: str):

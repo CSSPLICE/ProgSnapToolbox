@@ -6,11 +6,11 @@ from typing import List, Type
 
 from api.config import load_api_config
 from api.events import TempCodeState, DataModelGenerator
-from database.db_writer import DBWriter
-from database.db_writer_factory import create_db_writer_factory
-from spec.spec_definition import load_spec
+from database.writer.db_writer import DBWriter
+from database.writer.db_writer_factory import DBWriterFactory
+from spec.spec_definition import ProgSnap2Spec
 
-spec = load_spec("progsnap2/spec/progsnap2.yaml")
+spec = ProgSnap2Spec.from_yaml("progsnap2/spec/progsnap2.yaml")
 
 data_model_gen = DataModelGenerator(spec)
 MainTableEvent = data_model_gen.MainTableEvent
@@ -19,7 +19,7 @@ AnyAdditionalColumns = data_model_gen.AnyAdditionalColumns
 
 api_config = load_api_config("progsnap2/api/api_config.yaml", spec)
 
-db_writer_factory = create_db_writer_factory(api_config)
+db_writer_factory = DBWriterFactory.create_db_writer_factory(api_config)
 
 app = FastAPI()
 

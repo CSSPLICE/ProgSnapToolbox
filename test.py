@@ -5,15 +5,14 @@ print(f"Adding {src_path} to sys.path")
 sys.path.insert(0, src_path)
 
 from sqlalchemy import create_engine
-from database.setup import create_tables_from_schema
 from spec.gen_client import generate_ts_methods
 from spec.gen_enums import generate_enums_for_spec
-from spec.spec_definition import load_spec
+from spec.spec_definition import ProgSnap2Spec
 from spec.enums import EventTypes
 
 if __name__ == "__main__":
     # Load schema
-    schema = load_spec("src/spec/progsnap2.yaml")
+    schema = ProgSnap2Spec.from_yaml("src/spec/progsnap2.yaml")
 
     out = generate_enums_for_spec(schema)
     with open("src/spec/enums.py", "w", encoding='utf-8') as f:
@@ -26,4 +25,4 @@ if __name__ == "__main__":
     engine = create_engine("sqlite:///example.db", echo=True)
 
     # Create tables
-    create_tables_from_schema(schema, engine)
+    # create_tables_from_schema(schema, engine)

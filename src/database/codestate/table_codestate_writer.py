@@ -9,7 +9,7 @@ class TableCodeStateWriter(CodeStateWriter):
     def __init__(self, context: SQLContext):
         super().__init__()
         self.conn = context.conn
-        self.table = context.metadata.tables["CodeStates"]
+        self.table = context.table_manager.codestates_table
 
     def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:
         codestate_id = self.get_codestate_id_from_hash(codestate)

@@ -2,10 +2,11 @@
 import os
 import copy
 from database.codestate.codestate_writer import CodeStateEntry, CodeStateSection, CodeStateWriter
-from database.codestate.directory_codestate_writer import DirectoryTableWriter
+from database.codestate.directory_codestate_writer import DirectoryCodeStateWriter
 from database.codestate.git_codestate_writer import GitCodeStateWriter
+from .conftest import TEMP_DIR, cleanup_temp_dir
 
-temp_dir = "test_data/codestates"
+temp_dir = TEMP_DIR
 
 class CodestateGenerator():
 
@@ -31,19 +32,12 @@ class CodestateGenerator():
 
 gen = CodestateGenerator()
 
-def cleanup():
-    # Clean up the temporary directory from prior tests
-    import shutil
-    if os.path.exists(temp_dir):
-        shutil.rmtree(temp_dir)
-
-
 
 def test_directory_codestate_writer():
     # Initialize the DirectoryTableWriter
-    writer = DirectoryTableWriter(temp_dir)
+    writer = DirectoryCodeStateWriter(temp_dir)
 
-    cleanup()
+    cleanup_temp_dir()
 
     # Add the codestate and get its ID
     codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
@@ -62,7 +56,7 @@ def test_git_codestate_writer():
     # Initialize the DirectoryTableWriter
     writer = GitCodeStateWriter(temp_dir)
 
-    cleanup()
+    cleanup_temp_dir()
 
     # Add the codestate and get its ID
     codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
