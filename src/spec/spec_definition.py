@@ -34,8 +34,11 @@ class Property(BaseModel):
 class Column(Property):
     requirement: Requirement
 
+class MetadataProperty(Property):
+    default_value: str | bool = None
+
 class Metadata(BaseModel):
-    properties: List[Column]
+    properties: List[MetadataProperty]
 
 
 class EventType(BaseModel):

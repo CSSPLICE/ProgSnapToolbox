@@ -10,7 +10,7 @@ from spec.spec_definition import Metadata, ProgSnap2Spec
 def create_metadata_values_model(metadata_spec: Metadata) -> type[BaseModel]:
     fields = {}
     for property in metadata_spec.properties:
-        fields[property.name] = (property.datatype.python_type, ...)
+        fields[property.name] = (property.datatype.python_type, property.default_value)
     return create_model("MetadataValues", **fields)
 
 class PS2DataConfig(BaseModel):
