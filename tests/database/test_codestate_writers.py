@@ -37,8 +37,6 @@ def test_directory_codestate_writer():
     # Initialize the DirectoryTableWriter
     writer = DirectoryCodeStateWriter(temp_dir)
 
-    cleanup_temp_dir()
-
     # Add the codestate and get its ID
     codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
 
@@ -55,8 +53,6 @@ def test_directory_codestate_writer():
 def test_git_codestate_writer():
     # Initialize the DirectoryTableWriter
     writer = GitCodeStateWriter(temp_dir)
-
-    cleanup_temp_dir()
 
     # Add the codestate and get its ID
     codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)

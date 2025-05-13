@@ -8,6 +8,11 @@ from spec.spec_definition import ProgSnap2Spec
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+@pytest.fixture(scope="session", autouse=True)
+def run_clean_temp_dir():
+    # Cleanup the temporary directory before running tests
+    cleanup_temp_dir()
+
 @pytest.fixture(scope="session")
 def ps2_spec() -> ProgSnap2Spec:
     spec_path = "src/spec/progsnap2.yaml"
@@ -25,7 +30,7 @@ def sqlite_writer_factory(ps2_spec, sqlite_config):
     return SQLWriterFactory(ps2_spec, sqlite_config)
 
 
-TEMP_DIR = "test_data/codestates"
+TEMP_DIR = "test_data"
 
 def cleanup_temp_dir():
     # Clean up the temporary directory from prior tests

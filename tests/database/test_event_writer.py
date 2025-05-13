@@ -7,7 +7,6 @@ from tests.database.conftest import cleanup_temp_dir
 
 
 def test_event_writer_one_event(sqlite_writer_factory):
-    cleanup_temp_dir()
 
     # Initialize the SQLite writer
     with sqlite_writer_factory.create() as writer:

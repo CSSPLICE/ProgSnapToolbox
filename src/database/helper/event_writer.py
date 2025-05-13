@@ -28,6 +28,7 @@ class EventWriterBase():
         """
         Generate a new UUID.
         """
+        # Could make configurable (e.g. sequential IDs)
         return str(uuid.uuid4())
 
     def write_event(self, event_type: EventTypes, column_map: dict[str, any]) -> None:
@@ -49,7 +50,6 @@ class EventWriterBase():
             column_map[Cols.EventID] = self.generate_uuid()
 
         codestates = {}
-        temp_codestate_id = 0
         if CODESTATE in column_map:
             if Cols.CodeStateID in column_map:
                 raise ValueError(f"Cannot have both {CODESTATE} and {Cols.CodeStateID} in fields.")
@@ -57,11 +57,10 @@ class EventWriterBase():
             code = column_map[CODESTATE]
             # TODO: Maybe need validation somewhere depending on codestatewriter...
             codestate = ContextualCodeStateEntry.from_code(code, column_map.get(Cols.SubjectID), column_map.get(Cols.ProjectID))
-            codestates[temp_codestate_id] = codestate
-            column_map[Cols.CodeStateID] = temp_codestate_id
+            codestates["temp"] = codestate
+            column_map[Cols.CodeStateID] = "temp"
 
             del column_map[CODESTATE]
-            temp_codestate_id += 1
 
         self.writer.add_events_with_codestates([column_map], codestates)
 
