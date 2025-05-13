@@ -2,8 +2,11 @@ EnumTypes:
   - name: CodeStateRepresentation
     values:
       - name: Table
+        description: CodeStates will be stored in a CodeStates table along with other tables in the database.
       - name: Directory
+        description: CodeStates will be stored in individual folders, with each folder containing all code files, organized by SubjectID.
       - name: Git
+        description: CodeStates will be stored in Git repositories, with commit hashes used as CodeStateIDs, organized by SubjectID and ProjectID.
 
   - name: EventInitiator
     values:
@@ -109,7 +112,7 @@ Metadata:
       datatype: Enum
       default_value: Table
       description: |
-        This property specifies which CodeState representation is used by the dataset.  This property must be specified using one of the legal values listed below.
+        This property specifies which CodeState representation is used by the dataset.
 
     - name: ProgramInputLinkTable
       datatype: String
@@ -635,3 +638,5 @@ LinkTables:
         datatype: Real
         description: |
           The student's score between 0-1 on the midterm exam.
+    description: |
+      A link table with additional information about each student.
