@@ -25,7 +25,7 @@ class PS2DataConfig(BaseModel):
     # so maybe require the spec to load it? Not sure... Or create
     # a MetadataValuesBase calss...
     def validate_metadata(self, spec: ProgSnap2Spec) -> bool:
-        metadata_class = create_metadata_values_model(spec.Metadata)
+        metadata_class = create_metadata_values_model(spec.metadata)
         try:
             self.metadata = metadata_class(**self.metadata)
             return True

@@ -87,7 +87,7 @@ class SQLTableManager:
         # --- Main Table ---
         main_columns = []
 
-        for col in spec.MainTable.columns:
+        for col in spec.main_table.columns:
             main_columns.append(define_column(col))
 
         self.main_table = Table(
@@ -98,7 +98,7 @@ class SQLTableManager:
         id_datatype = map_datatype(PS2Datatype.ID)
         path_datatype = map_datatype(PS2Datatype.RelativePath)
 
-        for link_table in spec.LinkTables:
+        for link_table in spec.link_tables:
             columns = []
             # ID columns
             for id_col in link_table.id_column_names:

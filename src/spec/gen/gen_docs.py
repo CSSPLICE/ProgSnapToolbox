@@ -40,24 +40,27 @@ def format_enum_table_rows(enum_values: List[EnumValue]) -> str:
     return make_markdown_table(headers, rows)
 
 def format_event_type_enum_table(spec: ProgSnap2Spec) -> str:
-    headers, rows = get_enum_table(spec.MainTable.event_types)
+    headers, rows = get_enum_table(spec.main_table.event_types)
     headers += ["Required Columns", "Optional Columns"]
     for i, _ in enumerate(rows):
-        event_type = spec.MainTable.event_types[i]
-        required_columns = ", ".join(event_type.required_columns) if event_type.required_columns else ""
-        optional_columns = ", ".join(event_type.optional_columns) if event_type.optional_columns else ""
+        event_type = spec.main_table.event_types[i]
+        required_columns = format_event_type_linked_column(event_type.required_columns, spec)
+        optional_columns = format_event_type_linked_column(event_type.optional_columns, spec)
         rows[i] += [required_columns, optional_columns]
     return make_markdown_table(headers, rows)
 
-# Jinja2 template for enum type section
-enum_table_template = Template("""
-## {{ enum_type.name }}
-* *Datatype*: Enum
+def format_event_type_linked_column(columns: list[str], spec: ProgSnap2Spec) -> str:
+    """
+    Format the linked columns for an event type.
+    """
+    if columns is None:
+        return ""
+    parts = []
+    for col_name in columns:
+        col = spec.main_table.get_column(col_name)
+        parts.append(f"[{col.name}](#{col.name.lower()})")
+    return ", ".join(parts)
 
-**Enum Values**:
-
-{{ table }}
-""")
 
 def render_enum_type(enum_type: EnumType) -> str:
     """
@@ -76,30 +79,45 @@ def render_property(prop: Property, spec: ProgSnap2Spec) -> str:
     lines = [f"### {prop.name}"]
 
     if isinstance(prop, Column):
-        lines.append(f"* *Requirement Type*: {prop.requirement.value}")
+        lines.append(f"- *Requirement Type*: {prop.requirement.value}")
 
-    lines.append(f"* *Datatype*: {prop.datatype.name}")
+    lines.append(f"- *Datatype*: {prop.datatype.name}")
 
     if isinstance(prop, MetadataProperty):
-        lines.append(f"* *Default value*: {prop.default_value if prop.default_value is not None else 'None'}")
+        lines.append(f"- *Default value*: {prop.default_value if prop.default_value is not None else 'None'}")
+
+    if isinstance(prop, Column):
+        if prop.requirement == Requirement.EventSpecific:
+            required_events = [event for event in spec.main_table.event_types if event.is_column_required(prop.name)]
+            if required_events:
+                lines.append("\n- *Required for these [EventTypes](#eventtype)*:\n")
+                for event in required_events:
+                    lines.append(f"  - {event.name}")
+            optional_events = [event for event in spec.main_table.event_types if event.is_column_specific_to_event(prop.name)]
+            if optional_events:
+                lines.append("\n- *Optional for these [EventTypes](#eventtype)*:\n")
+                for event in optional_events:
+                    lines.append(f"  - {event.name}")
 
     if prop.datatype == PS2Datatype.Enum:
-        lines.append("\n**Enum Values**:\n")
+        lines.append(f"\n**{prop.name} Allowed Values**:\n")
         if prop.name == MainTableColumns.EventType:
             lines.append(format_event_type_enum_table(spec))
         else:
-            enum_type = next((et for et in spec.EnumTypes if et.name == prop.name), None)
+            enum_type = next((et for et in spec.enum_types if et.name == prop.name), None)
             if enum_type:
                 lines.append(format_enum_table_rows(enum_type.values))
             else:
                 raise ValueError(f"Enum type {prop.name} not found in spec.")
+
 
     lines.append(render_description(prop.description))
     return "\n".join(lines)
 
 def render_metadata_section(spec: ProgSnap2Spec) -> str:
     lines = ["# Metadata Table"]
-    for prop in spec.Metadata.properties:
+    lines.append(render_description(spec.metadata.description))
+    for prop in spec.metadata.properties:
         lines.append(render_property(prop, spec))
     return "\n\n".join(lines)
 
@@ -121,8 +139,47 @@ def render_main_table_columns(spec: ProgSnap2Spec) -> str:
     lines = []
 
     for category in Requirement:
-        columns_subset = [col for col in spec.MainTable.columns if col.requirement == category]
+        columns_subset = [col for col in spec.main_table.columns if col.requirement == category]
         lines.append(render_main_table_columns_group(columns_subset, category, spec))
 
     return "\n\n".join(lines)
 
+def render_main_table(spec: ProgSnap2Spec) -> str:
+    lines = ["# Main Table"]
+    lines.append(render_description(spec.main_table.description))
+    lines.append(render_main_table_columns(spec))
+    return "\n\n".join(lines)
+
+def render_link_tables(spec: ProgSnap2Spec) -> str:
+    lines = ["# Link Tables"]
+    for link_table in spec.link_tables:
+        table_lines = []
+        table_lines.append(f"## {link_table.name}")
+        table_lines.append(render_description(link_table.description))
+
+        if link_table.id_column_names:
+            table_lines.append("\n*Required ID Columns*:\n")
+            for col in link_table.id_column_names:
+                table_lines.append(f"- [{col}](#{col.lower()})")
+            table_lines.append("\n")
+
+        if link_table.additional_columns:
+            table_lines.append("\n*Additional Columns*:\n")
+            for col in link_table.additional_columns:
+                table_lines.append(render_property(col, spec))
+                table_lines.append("\n")
+        lines.append("\n".join(table_lines))
+    return "\n\n".join(lines)
+
+def render_spec(spec: ProgSnap2Spec) -> str:
+    """
+    Render the entire specification as a Markdown document.
+    """
+    lines = []
+    lines.append("# ProgSnap2 Specification")
+    lines.append(f"Version: {spec.version}")
+    lines.append("""\nThis document describes details of the ProgSnap2 specification. A full reference on the specification can be found [here](https://docs.google.com/document/d/1qknzmWr1FL3r8a2BoYyIBQDSWEgBs1jhzdrR-bYh4zI/edit?tab=t.0).""")
+    lines.append(render_metadata_section(spec))
+    lines.append(render_main_table(spec))
+    lines.append(render_link_tables(spec))
+    return "\n\n".join(lines)

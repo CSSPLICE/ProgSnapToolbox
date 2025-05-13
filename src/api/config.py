@@ -21,7 +21,7 @@ class PS2APIConfigBase(BaseModel):
 
 def generate_ps2_api_config_class(ps2_spec: ProgSnap2Spec) -> type[PS2APIConfigBase]:
     fields = {
-        'metadata': create_metadata_values_model(ps2_spec.Metadata),
+        'metadata': create_metadata_values_model(ps2_spec.metadata),
     }
     return create_model("PS2APIConfig", __base__=PS2APIConfigBase, **fields)
 

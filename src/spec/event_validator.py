@@ -44,15 +44,15 @@ class EventValidator():
         ])
 
         required_column_names = [
-            col.name for col in spec.MainTable.columns
+            col.name for col in spec.main_table.columns
             if col.requirement == Requirement.Required
         ]
         optional_column_names = [
-            col.name for col in spec.MainTable.columns
+            col.name for col in spec.main_table.columns
             if col.requirement == Requirement.Optional
         ]
 
-        event_type = spec.MainTable.get_event_type(event.EventType)
+        event_type = spec.main_table.get_event_type(event.EventType)
         if event_type is None:
             errors.append(ValidationError(column=event.EventType, type=ErrorType.InvalidEventType))
         else:

@@ -27,7 +27,7 @@ def add_args(columns: list[str], is_required: bool, schema: ProgSnap2Spec, args:
     if columns is None:
         return
     for col_name in columns:
-        col = next((c for c in schema.MainTable.columns if c.name == col_name), None)
+        col = next((c for c in schema.main_table.columns if c.name == col_name), None)
         if col:
             ts_type = map_to_ts_type(col)
             name = col.name
@@ -41,7 +41,7 @@ def add_args(columns: list[str], is_required: bool, schema: ProgSnap2Spec, args:
 def generate_ts_methods(schema: ProgSnap2Spec) -> str:
     template = Template(create_ts_template())
     methods = []
-    for evt in schema.MainTable.event_types:
+    for evt in schema.main_table.event_types:
         args = []
         add_args(evt.required_columns, True, schema, args)
         add_args(evt.optional_columns, False, schema, args)

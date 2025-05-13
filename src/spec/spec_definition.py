@@ -38,6 +38,7 @@ class MetadataProperty(Property):
     default_value: str | bool = None
 
 class Metadata(BaseModel):
+    description: str = None
     properties: List[MetadataProperty]
 
 
@@ -58,6 +59,7 @@ class EventType(BaseModel):
 class MainTable(BaseModel):
     columns: List[Column]
     event_types: List[EventType]
+    description: str = None
 
     @computed_field
     def _event_type_map(self) -> Dict[str, EventType]:
@@ -65,6 +67,13 @@ class MainTable(BaseModel):
 
     def get_event_type(self, event_type_name: str) -> Optional[EventType]:
         return self._event_type_map.get(event_type_name)
+
+    @computed_field
+    def _column_map(self) -> Dict[str, Column]:
+        return {column.name: column for column in self.columns}
+
+    def get_column(self, column_name: str) -> Optional[Column]:
+        return self._column_map.get(column_name)
 
     @model_validator(mode="after")
     def validate_event_types(cls, values):
@@ -91,19 +100,17 @@ class LinkTableSpec(BaseModel):
 
 
 class ProgSnap2Spec(BaseModel):
-    Metadata: Metadata
-    EnumTypes: List[EnumType]
-    MainTable: MainTable
-    LinkTables: List[LinkTableSpec]
-
-    def version(self) -> str:
-        return self.Metadata.Version
+    version: str
+    metadata: Metadata
+    enum_types: List[EnumType]
+    main_table: MainTable
+    link_tables: List[LinkTableSpec]
 
     @model_validator(mode="after")
     def validate_link_table_id_cols(cls, values):
         # Check if all ID columns in link tables are present in the main table
-        id_columns = {col.name for col in values.MainTable.columns}
-        for link_table in values.LinkTables:
+        id_columns = {col.name for col in values.main_table.columns}
+        for link_table in values.link_tables:
             for id_col in link_table.id_column_names:
                 if id_col not in id_columns:
                     raise ValueError(f"ID column '{id_col}' in LinkTable '{link_table.name}' not defined in MainTable")

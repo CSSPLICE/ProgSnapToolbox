@@ -45,7 +45,7 @@ class DataModelGenerator:
     def __init__(self, ps2_spec: ProgSnap2Spec):
         self.ps2_spec = ps2_spec
         self.event_type_enum = self.create_event_type_enum_type()
-        self.enum_type_map = {et.name: et for et in ps2_spec.EnumTypes}
+        self.enum_type_map = {et.name: et for et in ps2_spec.enum_types}
         self.__enum_map = {}
         self.MainTableEvent = self.generate_main_table_event()
         self.main_event_additional_columns = self.generate_main_event_additional_columns()
@@ -96,7 +96,7 @@ class DataModelGenerator:
 
     def generate_main_table_event(self) -> type[MainTableEventBase]:
         fields = {}
-        for col in self.ps2_spec.MainTable.columns:
+        for col in self.ps2_spec.main_table.columns:
             type = self.get_type_for_column(col)
             required = col.requirement == Requirement.Required
             fields[col.name] = self.get_field_representation(type, required)
@@ -108,7 +108,7 @@ class DataModelGenerator:
         Generate a class for the event-specific columns.
         """
         fields = {}
-        for col in self.ps2_spec.MainTable.columns:
+        for col in self.ps2_spec.main_table.columns:
             if not event_type.is_column_specific_to_event(col.name):
                 continue
             type = self.get_type_for_column(col)
@@ -125,7 +125,7 @@ class DataModelGenerator:
         each event.
         """
         column_classes = []
-        for event_type in self.ps2_spec.MainTable.event_types:
+        for event_type in self.ps2_spec.main_table.event_types:
             subclass = self.generate_event_specific_columns_class(event_type)
             column_classes.append(subclass)
         return column_classes

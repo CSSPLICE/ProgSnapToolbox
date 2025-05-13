@@ -5,8 +5,8 @@ print(f"Adding {src_path} to sys.path")
 sys.path.insert(0, src_path)
 
 from sqlalchemy import create_engine
-from spec.gen_client import generate_ts_methods
-from spec.gen_enums import generate_enums_for_spec
+from spec.gen.gen_client import generate_ts_methods
+from spec.gen.gen_enums import generate_enums_for_spec
 from spec.spec_definition import ProgSnap2Spec
 from spec.enums import EventTypes
 
