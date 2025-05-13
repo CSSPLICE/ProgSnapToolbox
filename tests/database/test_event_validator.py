@@ -11,8 +11,6 @@ def create_valid_event(config: SpecConfig):
     event = config.MainTableEvent(
         EventType=str(EventTypes.SessionStart),
         EventID="test",
-        # TODO: Resolve this :((
-        # TempCodeStateID="test",
         CodeStateID="test",
         SubjectID="test",
         ToolInstances="test",

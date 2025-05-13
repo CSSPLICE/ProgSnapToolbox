@@ -18,6 +18,7 @@ class SQLWriter(DBWriter):
 
     def add_events_with_codestates(self, events: dict[str,any], codestates: dict[str, CodeStateEntry]):
         # TODO: Shouldn't I move the validator here? and maybe events too...
+        # TODO: Add option to not auto-add codestates...?
         temp_codestate_id_map = {}
         for temp_id, codestate in codestates.items():
             code_state_id = self.codestate_writer.add_codestate_and_get_id(codestate)

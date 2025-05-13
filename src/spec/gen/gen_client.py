@@ -1,11 +1,11 @@
 from jinja2 import Template
 
 from spec.events import EventType
-from .spec_definition import ProgSnap2Spec, Column
-from .datatypes import PS2Datatype
+from spec.spec_definition import ProgSnap2Spec, Column
+from spec.datatypes import PS2Datatype
 import textwrap
 
-def create_template():
+def create_ts_template():
     return """
 {{ method_name }}({% for arg in args %}{{ arg.name }}: {{ arg.type }}{% if not loop.last %}, {% endif %}{% endfor %}) {
     this.logEvent(EventType.{{ event_type }}, {
@@ -39,7 +39,7 @@ def add_args(columns: list[str], is_required: bool, schema: ProgSnap2Spec, args:
             raise ValueError(f"Column {col_name} not found in schema.")
 
 def generate_ts_methods(schema: ProgSnap2Spec) -> str:
-    template = Template(create_template())
+    template = Template(create_ts_template())
     methods = []
     for evt in schema.MainTable.event_types:
         args = []

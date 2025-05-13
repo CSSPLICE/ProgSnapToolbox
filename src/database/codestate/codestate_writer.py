@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 import hashlib
+from typing import Optional
 
 from spec.codestate import CodeStateEntry, CodeStateSection
 
@@ -22,8 +23,8 @@ class ContextualCodeStateEntry(CodeStateEntry):
 
     # Must include the subject ID, since this is needed for
     # Directory and Git representations
-    grouping_id: str
-    ProjectID: str
+    grouping_id: str = None
+    ProjectID: Optional[str] = None
 
     @classmethod
     def from_codestate_entry(cls, codestate_entry: CodeStateEntry, grouping_id: str, project_id: str) -> "ContextualCodeStateEntry":
@@ -32,6 +33,11 @@ class ContextualCodeStateEntry(CodeStateEntry):
             grouping_id=grouping_id,
             ProjectID=project_id
         )
+
+    @classmethod
+    def from_code(cls, code: str, grouping_id: str | None, project_id: str | None) -> "CodeStateEntry":
+        return cls(sections=[CodeStateSection(Code=code)], grouping_id=grouping_id, ProjectID=project_id)
+
 
 class CodeStateWriter(ABC):
 

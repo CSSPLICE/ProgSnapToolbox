@@ -7,12 +7,8 @@ from database.writer.db_writer_factory import SQLWriterFactory
 from database.writer.sql_writer import SQLWriter
 from .conftest import cleanup_temp_dir
 from .test_codestate_writers import CodestateGenerator
-from ..api.test_event_validator import create_valid_event
+from .test_event_validator import create_valid_event
 from spec.enums import MainTableColumns as MTC, EventTypes
-
-@pytest.fixture(scope="session")
-def sqlite_writer_factory(ps2_spec, sqlite_config):
-    return SQLWriterFactory(ps2_spec, sqlite_config)
 
 def test_sqlite_writer_init(sqlite_writer_factory, sqlite_config):
     cleanup_temp_dir()

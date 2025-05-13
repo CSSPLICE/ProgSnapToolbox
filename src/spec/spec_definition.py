@@ -5,7 +5,7 @@ import yaml
 
 from spec.datatypes import PS2Datatype
 
-
+# TODO: These should all probably be immutable
 class EnumValue(BaseModel):
     name: str
     description: str = None
