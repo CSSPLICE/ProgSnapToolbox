@@ -1,6 +1,6 @@
 
 from api.config import PS2APIConfigBase
-from api.events import DataModelGenerator
+from spec.events import DataModelGenerator
 from database.db_writer_factory import create_db_writer_factory
 
 

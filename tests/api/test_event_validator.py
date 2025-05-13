@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 import pytest
-from api.event_validator import ErrorType, EventValidator
-from api.events import DataModelGenerator
+from spec.event_validator import ErrorType, EventValidator
+from spec.events import DataModelGenerator
 from spec.spec_definition import ProgSnap2Spec
 from spec.enums import EventTypes
 from ..conftest import SpecConfig

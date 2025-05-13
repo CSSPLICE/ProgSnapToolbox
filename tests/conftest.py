@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import pytest
-from api.events import DataModelGenerator
+from spec.events import DataModelGenerator
 from spec.spec_definition import ProgSnap2Spec
 
 @dataclass

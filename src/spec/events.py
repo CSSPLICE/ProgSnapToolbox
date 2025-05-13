@@ -1,7 +1,6 @@
-from typing import List, Literal, Optional, Union
+from typing import List, Optional, Union
 from pydantic import BaseModel, create_model
 from enum import Enum
-from datetime import datetime
 
 from database.codestate.codestate_writer import CodeStateSection
 from spec import datatypes

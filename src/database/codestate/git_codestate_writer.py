@@ -2,8 +2,7 @@ import os
 import shutil
 from git import Repo
 
-from database.codestate.codestate_writer import CodeStateWriter
-from database.codestate.codestate_writer import CodeStateEntry
+from database.codestate.codestate_writer import CodeStateWriter, ContextualCodeStateEntry
 
 # TODO: Handle locking and other things?
 # This would probably require a fair bit of work, may be out of scope
@@ -16,7 +15,7 @@ class GitCodeStateWriter(CodeStateWriter):
         super().__init__()
         self.root = code_states_dir_path
 
-    def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:
+    def add_codestate_and_get_id(self, codestate: ContextualCodeStateEntry) -> str:
         grouping_id = codestate.grouping_id or ''
         directory = os.path.join(self.root, grouping_id, codestate.ProjectID)
         if not os.path.exists(directory):

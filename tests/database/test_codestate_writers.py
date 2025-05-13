@@ -1,7 +1,7 @@
 
 import os
 import copy
-from database.codestate.codestate_writer import CodeStateEntry, CodeStateSection, CodeStateWriter
+from database.codestate.codestate_writer import CodeStateSection, ContextualCodeStateEntry
 from database.codestate.directory_codestate_writer import DirectoryCodeStateWriter
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 from .conftest import TEMP_DIR, cleanup_temp_dir
@@ -15,7 +15,7 @@ class CodestateGenerator():
         grouping_id = "subject_1"
         project_id = "project_1"
 
-        self.codestate1 = CodeStateEntry(
+        self.codestate1 = ContextualCodeStateEntry(
             sections=[
                 CodeStateSection(Code = "print('Hello, World!')", CodeStateSection = "main.py"),
                 CodeStateSection(Code = "def greet(): pass", CodeStateSection = "greet.py")

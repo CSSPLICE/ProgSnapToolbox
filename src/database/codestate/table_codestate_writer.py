@@ -1,5 +1,5 @@
 from sqlalchemy import insert
-from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
+from database.codestate.codestate_writer import ContextualCodeStateEntry, CodeStateWriter
 from database.sql_context import SQLContext
 from spec.enums import CodeStatesTableColumns as Cols
 
@@ -11,7 +11,7 @@ class TableCodeStateWriter(CodeStateWriter):
         self.conn = context.conn
         self.table = context.table_manager.codestates_table
 
-    def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:
+    def add_codestate_and_get_id(self, codestate: ContextualCodeStateEntry) -> str:
         codestate_id = self.get_codestate_id_from_hash(codestate)
 
         # Execute as a transaction to ensure atomicity

@@ -1,6 +1,6 @@
 
 import os
-from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
+from database.codestate.codestate_writer import CodeStateWriter, ContextualCodeStateEntry
 
 
 class DirectoryCodeStateWriter(CodeStateWriter):
@@ -9,7 +9,7 @@ class DirectoryCodeStateWriter(CodeStateWriter):
         super().__init__()
         self.root = code_states_dir_path
 
-    def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:
+    def add_codestate_and_get_id(self, codestate: ContextualCodeStateEntry) -> str:
         codestate_id = self.get_codestate_id_from_hash(codestate)
 
         grouping_id = codestate.grouping_id or ''

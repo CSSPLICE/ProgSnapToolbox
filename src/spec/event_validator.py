@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from api.events import MainTableEventBase
+from spec.events import MainTableEventBase
 from spec.spec_definition import ProgSnap2Spec, Requirement
 
 class ErrorType(Enum):

@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Type
 
 from api.config import load_api_config
-from api.events import TempCodeState, DataModelGenerator
+from spec.events import TempCodeState, DataModelGenerator
 from database.writer.db_writer import DBWriter
 from database.writer.db_writer_factory import DBWriterFactory
 from spec.spec_definition import ProgSnap2Spec

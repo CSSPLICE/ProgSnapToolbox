@@ -1,33 +1,41 @@
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import hashlib
 
-from pydantic import BaseModel
+from spec.codestate import CodeStateEntry, CodeStateSection
 
 
-class CodeStateSection(BaseModel):
+class ContextualCodeStateEntry(CodeStateEntry):
     """
-    A class representing the state of a file at a given time.
+    Represents a CodeState with additional context needed for logging for
+    organization in filesystem-based representations (Git and Directory).
+    This context can be inferred automatically from events. It is not used
+    in the Table representation.
     """
-    Code: str
-    CodeStateSection: str = None
 
-@dataclass
-class CodeStateEntry():
-    sections: list[CodeStateSection]
+    # There's a weird discrepancy in the 3 CodeState representations
+    # where in Table a CodeStateID has nothing to do with the SubjectID or ProjectID,
+    # but in the filesystem-based representations, we do use that information for subfolders.
+    # Should this information be strictly required for all representations, even if not used?
+    # I think if we infer it from events it will be fine. This can lead to identical codestates
+    # for different subjects, but I think that's okay if using Git or Directory formats.
+
     # Must include the subject ID, since this is needed for
     # Directory and Git representations
     grouping_id: str
     ProjectID: str
 
     @classmethod
-    def from_code(cls, code: str, grouping_id: str, ProjectID: str) -> "CodeStateEntry":
-        return cls(sections=[CodeStateSection(Code=code)], grouping_id=grouping_id, ProjectID=ProjectID)
+    def from_codestate_entry(cls, codestate_entry: CodeStateEntry, grouping_id: str, project_id: str) -> "ContextualCodeStateEntry":
+        return cls(
+            sections=codestate_entry.sections,
+            grouping_id=grouping_id,
+            ProjectID=project_id
+        )
 
 class CodeStateWriter(ABC):
 
-    def get_codestate_id_from_hash(self, codestate: CodeStateEntry) -> str:
+    def get_codestate_id_from_hash(self, codestate: ContextualCodeStateEntry) -> str:
         sections = codestate.sections
         # Sort sections to ensure consistent ID generation
         sections = sorted(sections, key=lambda x: x.CodeStateSection or "")
