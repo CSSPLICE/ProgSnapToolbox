@@ -64,7 +64,7 @@ class SQLWriterContextManager:
 
     def __enter__(self):
         self.conn = self.factory.engine.connect()
-        context = SQLContext(self.conn, self.factory.table_manager)
+        context = SQLContext(self.conn, self.factory.table_manager, self.factory.db_config, self.factory.ps2_spec)
         return SQLWriter(context, self.factory._create_codestate_writer(self.factory.db_config, context))
 
     def __exit__(self, exc_type, exc_val, exc_tb):

@@ -15,7 +15,15 @@ def create_metadata_values_model(metadata_spec: Metadata) -> type[BaseModel]:
 
 class PS2DataConfig(BaseModel):
     root_path: str
+    """The root directory of the PrgoSnap2 dataset."""
+
     metadata: object
+
+    optimize_codestate_ids: bool
+    """If true, provided CodeStateIDs are assumed to be local
+    to each logging call and will be regenerated to be globally
+    unique. If false, the provided CodeStateIDs are used directly.
+    """
 
     @property
     def codestates_dir(self) -> str:

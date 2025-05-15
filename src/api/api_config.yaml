@@ -3,6 +3,7 @@ database_config:
   root_path: ./test-data/
   sqlalchemy_url: sqlite:///example.db
   echo: true
+  optimize_codestate_ids: true
 
   metadata:
     Version: "1.0"

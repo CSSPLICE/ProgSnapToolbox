@@ -9,7 +9,7 @@ from fastapi.responses import PlainTextResponse
 from api.config import PS2APIConfig
 from database.writer.sql_writer import SQLWriter
 from spec.events import TempCodeState, DataModelGenerator
-from database.writer.db_writer import DBWriter
+from database.writer.db_writer import DBWriter, LogResult
 from database.writer.db_writer_factory import DBWriterFactory, SQLWriterFactory
 from spec.spec_definition import ProgSnap2Spec
 from spec.gen.gen_client import generate_ts_methods
@@ -56,10 +56,10 @@ def get_additional_column_types(additionalColumns: AnyAdditionalColumns):
     pass
 
 
-@app.post("/events", operation_id="addEvents")
+@app.post("/events", operation_id="addEvents", response_model=LogResult)
 def add_events(events: List[MainTableEvent], writer: SQLWriter = Depends(create_writer)):
     events = [event.dict() for event in events]
-    writer.add_events_with_codestates(events, {})
+    return writer.add_events_with_codestates(events, {})
 
 @app.post("/code_states", operation_id="addCodeStates")
 def add_code_states(code_states: List[TempCodeState]):

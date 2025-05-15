@@ -22,6 +22,8 @@ class TableCodeStateWriter(CodeStateWriter):
             )
             result = self.conn.execute(select_statement).fetchone()
             if result:
+                # TODO: It might be good to check that the stored code state matches
+                # the one we are trying to add
                 return codestate_id
 
             # Add the code state to the CodeStates table using a structured query
