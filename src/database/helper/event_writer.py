@@ -4,7 +4,7 @@ import uuid
 from database.codestate.codestate_writer import ContextualCodeStateEntry
 from database.helper.event_state import EventState
 from database.writer.sql_writer import SQLWriter
-from spec.enums import EventTypes, MainTableColumns as Cols
+from spec.enums import EventType, MainTableColumns as Cols
 
 CODESTATE = "CodeState"
 
@@ -31,7 +31,7 @@ class EventWriterBase():
         # Could make configurable (e.g. sequential IDs)
         return str(uuid.uuid4())
 
-    def write_event(self, event_type: EventTypes, column_map: dict[str, any]) -> None:
+    def write_event(self, event_type: EventType, column_map: dict[str, any]) -> None:
         """
         Write the event to the database.
         """

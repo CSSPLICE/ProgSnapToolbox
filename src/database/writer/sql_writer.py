@@ -26,6 +26,9 @@ class SQLWriter(DBWriter):
         # TODO: Add option to not auto-add codestates...?
         for event in events:
             if MTC.CodeStateID in event:
+                if event[MTC.CodeStateID] not in temp_codestate_id_map:
+                    # TODO: Propagate warnings and do anyway...
+                    raise ValueError(f"CodeStateID {event[MTC.CodeStateID]} not found in temp_codestate_id_map.")
                 event[MTC.CodeStateID] = temp_codestate_id_map[event[MTC.CodeStateID]]
 
         main_table = self.context.table_manager.main_table

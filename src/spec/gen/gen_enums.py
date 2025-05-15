@@ -109,7 +109,7 @@ def _generate_event_type_enum(spec: ProgSnap2Spec) -> str:
     """
     Generate python enum code from a ProgSnap2 event types.
     """
-    enum_name = "EventTypes"
+    enum_name = "EventType"
     enum_values = [event_type.name for event_type in spec.main_table.event_types]
     doc = "Possible values for the EventType columns of the MainTable."
     docs = [event_type.description for event_type in spec.main_table.event_types]

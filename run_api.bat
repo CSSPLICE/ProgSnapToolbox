@@ -1,1 +1,2 @@
-uvicorn progsnap2.api.main:app --reload
+cd src
+uvicorn api.main:app --reload

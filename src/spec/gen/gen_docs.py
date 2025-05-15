@@ -61,14 +61,6 @@ def format_event_type_linked_column(columns: list[str], spec: ProgSnap2Spec) -> 
         parts.append(f"[{col.name}](#{col.name.lower()})")
     return ", ".join(parts)
 
-
-def render_enum_type(enum_type: EnumType) -> str:
-    """
-    Render a Markdown table for a given EnumType.
-    """
-    table = format_enum_table_rows(enum_type.values)
-    return enum_table_template.render(enum_type=enum_type, table=table)
-
 # TODO: Something's wrong with the MD formatting if this includes bullets (may be in the yaml...)
 # --- Shared Helper to Render Description ---
 def render_description(description: str) -> str:

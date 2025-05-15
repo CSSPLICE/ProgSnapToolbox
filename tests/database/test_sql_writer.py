@@ -8,7 +8,7 @@ from database.writer.sql_writer import SQLWriter
 from .conftest import cleanup_temp_dir
 from .test_codestate_writers import CodestateGenerator
 from .test_event_validator import create_valid_event
-from spec.enums import MainTableColumns as MTC, EventTypes
+from spec.enums import MainTableColumns as MTC, EventType
 
 def test_sqlite_writer_init(sqlite_writer_factory, sqlite_config):
     with sqlite_writer_factory.create() as writer:

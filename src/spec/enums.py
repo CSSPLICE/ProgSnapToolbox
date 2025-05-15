@@ -24,6 +24,7 @@ class MetadataProperties(StrEnum):
     IsEventOrderingConsistent = 'IsEventOrderingConsistent'
     """
     This property specifies whether the events in the main event table are predominantly ordered (within the scope specified by the EventOrderScope property) according to a single, globally-consistent clock, such that the ordering of the events in the same scope can (largely) be assumed to reflect their actual temporal order according to that clock.  Datasets originating from distributed systems (including client/server systems) might not have a single clock, in which case the value of this property should be false.
+
     Note that data consumers should be prepared to handle anomalies in event ordering, even if this property value is set to true.
     """
 
@@ -33,14 +34,10 @@ class MetadataProperties(StrEnum):
     """
 
     EventOrderScopeColumns = 'EventOrderScopeColumns'
-    """
-    This property specifies the main event table columns which define the scope of meaningful comparisons of Order column values.  This property must be set to a non-empty value if the EventOrderScope property has the value "Restricted".  (This property has no significance if EventOrderScope is not "Restricted".)  (This property has no significance if EventOrderScope is not "Restricted".)  The value of this column is a semicolon-separated list of main event table column names.
-    See more information in the full specification.
-    """
-
+    """This property specifies the main event table columns which define the scope of meaningful comparisons of Order column values.  This property must be set to a non-empty value if the EventOrderScope property has the value "Restricted".  (This property has no significance if EventOrderScope is not "Restricted".)  (This property has no significance if EventOrderScope is not "Restricted".)  The value of this column is a semicolon-separated list of main event table column names. See more information in the full specification."""
     CodeStateRepresentation = 'CodeStateRepresentation'
     """
-    This property specifies which CodeState representation is used by the dataset.  This property must be specified using one of the legal values listed below.
+    This property specifies which CodeState representation is used by the dataset.
     """
 
     ProgramInputLinkTable = 'ProgramInputLinkTable'
@@ -195,8 +192,11 @@ class MainTableColumns(StrEnum):
     A CodeStateSection value names a single file or resource within a CodeState which is specifically associated with the event.  Examples:
     * In a File.Create event, the CodeStateSection identifies the file created
     * In a Compile.Error event, the CodeStateSection identifies the source file in which the compilation error occurs
+
     Note that for events where there is both a "source" file/resource and a "destination" file/resource, the CodeStateSection value indicates the "source".  For example, for File.Copy and File.Rename events, the CodeStateSection names the "original" file.  (Note that in the case of File.Rename events, the CodeStateSection value identifies a file or resource in the previous CodeState.)
+
     Note that a CodeStateSection may only refer to a single file.  Cases where multiple resources are accessed or modified at the same time (such as using "Save All" to save all files) should be represented as multiple events, each with its own distinct CodeStateSection.
+
     Also note that CodeStateSections should not be used for CodeStates in the Table format, as all table data is contained in the same file.
     """
 
@@ -324,7 +324,7 @@ class MainTableColumns(StrEnum):
 
 
 
-class EventTypes(StrEnum):
+class EventType(StrEnum):
     """Possible values for the EventType columns of the MainTable."""
     SessionStart = 'Session.Start'
     """Marks the start of a work session."""
@@ -377,6 +377,10 @@ class EventTypes(StrEnum):
 class LinkTableNames(StrEnum):
     """Defined LinkTables"""
     LinkSubject = 'LinkSubject'
+    """
+    A link table with additional information about each student.
+    """
+
 
 
 class LinkSubjectColumns(StrEnum):
@@ -386,8 +390,11 @@ class LinkSubjectColumns(StrEnum):
 
 class CodeStateRepresentation(StrEnum):
     Table = 'Table'
+    """CodeStates will be stored in a CodeStates table along with other tables in the database."""
     Directory = 'Directory'
+    """CodeStates will be stored in individual folders, with each folder containing all code files, organized by SubjectID."""
     Git = 'Git'
+    """CodeStates will be stored in Git repositories, with commit hashes used as CodeStateIDs, organized by SubjectID and ProjectID."""
 
 
 class EventInitiator(StrEnum):

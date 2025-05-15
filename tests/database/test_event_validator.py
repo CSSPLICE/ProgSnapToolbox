@@ -4,12 +4,12 @@ import pytest
 from spec.event_validator import ErrorType, EventValidator
 from spec.events import DataModelGenerator
 from spec.spec_definition import ProgSnap2Spec
-from spec.enums import EventTypes
+from spec.enums import EventType
 from ..conftest import SpecConfig
 
 def create_valid_event(config: SpecConfig):
     event = config.MainTableEvent(
-        EventType=str(EventTypes.SessionStart),
+        EventType=str(EventType.SessionStart),
         EventID="test",
         CodeStateID="test",
         SubjectID="test",

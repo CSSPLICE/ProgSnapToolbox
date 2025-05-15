@@ -1,7 +1,6 @@
 
 from abc import ABC, abstractmethod
 import os
-from api.config import PS2APIConfigBase
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 from database.codestate.directory_codestate_writer import DirectoryCodeStateWriter
 from database.codestate.table_codestate_writer import TableCodeStateWriter
@@ -36,7 +35,7 @@ class DBWriterFactory(ABC):
             raise ValueError(f"Invalid code state representation: {code_state_representation}")
 
     @classmethod
-    def create(ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "DBWriterFactory":
+    def create_factory(cls, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "DBWriterFactory":
         if isinstance(db_config, PS2DatabaseConfig):
             return SQLWriterFactory(ps2_spec, db_config)
         elif isinstance(db_config, PS2CSVConfig):

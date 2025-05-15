@@ -4,22 +4,37 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Type
 
-from api.config import load_api_config
+from fastapi.responses import PlainTextResponse
+
+from api.config import PS2APIConfig
+from database.writer.sql_writer import SQLWriter
 from spec.events import TempCodeState, DataModelGenerator
 from database.writer.db_writer import DBWriter
-from database.writer.db_writer_factory import DBWriterFactory
+from database.writer.db_writer_factory import DBWriterFactory, SQLWriterFactory
 from spec.spec_definition import ProgSnap2Spec
+from spec.gen.gen_client import generate_ts_methods
 
-spec = ProgSnap2Spec.from_yaml("progsnap2/spec/progsnap2.yaml")
+spec = ProgSnap2Spec.from_yaml("spec/progsnap2.yaml")
 
 data_model_gen = DataModelGenerator(spec)
 MainTableEvent = data_model_gen.MainTableEvent
 AnyAdditionalColumns = data_model_gen.AnyAdditionalColumns
 
 
-api_config = load_api_config("progsnap2/api/api_config.yaml", spec)
+api_config = PS2APIConfig.from_yaml("api/api_config.yaml", spec)
 
-db_writer_factory = DBWriterFactory.create_db_writer_factory(api_config)
+db_writer_factory: SQLWriterFactory = DBWriterFactory.create_factory(spec, api_config.database_config)
+
+with db_writer_factory.create() as writer:
+    # Create the tables in the database
+    writer.initialize_database()
+
+# For use in Depends
+def create_writer():
+    with db_writer_factory.create() as writer:
+        yield writer
+
+
 
 app = FastAPI()
 
@@ -42,8 +57,9 @@ def get_additional_column_types(additionalColumns: AnyAdditionalColumns):
 
 
 @app.post("/events", operation_id="addEvents")
-def add_events(events: List[MainTableEvent], writer: DBWriter = Depends(db_writer_factory)):
-    pass
+def add_events(events: List[MainTableEvent], writer: SQLWriter = Depends(create_writer)):
+    events = [event.dict() for event in events]
+    writer.add_events_with_codestates(events, {})
 
 @app.post("/code_states", operation_id="addCodeStates")
 def add_code_states(code_states: List[TempCodeState]):
@@ -55,3 +71,7 @@ def add_events_with_code_states(events: List[MainTableEvent], code_states: List[
     Add events and code states to the database at the same time to ensure consistency.
     """
     pass
+
+@app.get("/generate_api_helper", operation_id="generateAPIHelper", response_class=PlainTextResponse)
+def generate_api_helper() -> str:
+    return generate_ts_methods(spec)

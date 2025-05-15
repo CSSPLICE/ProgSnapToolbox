@@ -2,7 +2,7 @@
 
 from database.helper.event_state import EventState
 from database.helper.event_writer import CODESTATE, EventWriterBase
-from spec.enums import EventTypes, MainTableColumns as Cols
+from spec.enums import EventType, MainTableColumns as Cols
 from tests.database.conftest import cleanup_temp_dir
 
 
@@ -26,7 +26,7 @@ def test_event_writer_one_event(sqlite_writer_factory):
         }
 
         # Add the event to the database
-        event_writer.write_event(EventTypes.SessionStart, event)
+        event_writer.write_event(EventType.SessionStart, event)
 
         # TODO: Cleanup doesn't seem to be working, and
         # the codestates seem wrong....

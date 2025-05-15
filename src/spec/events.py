@@ -5,7 +5,7 @@ from enum import Enum
 from database.codestate.codestate_writer import CodeStateSection
 from spec import datatypes
 from spec.spec_definition import Column, EnumType, EventType, ProgSnap2Spec, Requirement
-from spec.enums import EventTypes
+from spec.enums import EventType
 
 
 class TempCodeState(BaseModel):
@@ -59,7 +59,7 @@ class DataModelGenerator:
         #     v.name: v.name
         #     for v in self.ps2_spec.MainTable.event_types
         # })
-        return EventTypes
+        return EventType
 
     def get_enum_for_type(self, enum_definition: EnumType):
         """
