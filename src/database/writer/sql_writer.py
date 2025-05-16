@@ -3,6 +3,7 @@ from sqlalchemy import insert
 from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
 from database.writer.db_writer import DBWriter, LogResult
 from database.sql_context import SQLContext
+from spec.datatypes import get_current_timestamp
 from spec.enums import MainTableColumns as Cols
 
 EventList = list[dict[str, any]]
@@ -23,7 +24,7 @@ class SQLWriter(DBWriter):
     def add_server_timestamps(self, events: EventList) -> None:
         for event in events:
             if Cols.ServerTimestamp not in event:
-                event[Cols.ServerTimestamp] = datetime.datetime.now()
+                event[Cols.ServerTimestamp] = get_current_timestamp()
 
     def add_events_with_codestates(self, events: EventList, codestates: CodeStatesMap) -> LogResult:
         result = LogResult(True)

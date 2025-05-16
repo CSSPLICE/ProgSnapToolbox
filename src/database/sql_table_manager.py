@@ -33,7 +33,8 @@ def map_datatype(datatype: PS2Datatype):
         int: Integer,
         float: Float,
         bool: Boolean,
-        datetime: DATETIME,
+        # Currently unused, since it doesn't support timezone
+        # datetime: DATETIME(timezone=True),
     }
     if datatype.python_type not in type_map:
         raise ValueError(f"Unconvertible datatype: {datatype.python_type}")
