@@ -2,20 +2,20 @@ from dataclasses import dataclass
 
 import pytest
 from spec.event_validator import ErrorType, EventValidator
-from spec.events import DataModelGenerator
+from api.events import DataModelGenerator
 from spec.spec_definition import ProgSnap2Spec
-from spec.enums import EventType
+from spec.enums import EventType, MainTableColumns as Cols
 from ..conftest import SpecConfig
 
 def create_valid_event(config: SpecConfig):
-    event = config.MainTableEvent(
-        EventType=str(EventType.SessionStart),
-        EventID="test",
-        CodeStateID="test",
-        SubjectID="test",
-        ToolInstances="test",
-        SessionID="test",
-    )
+    event = {
+        Cols.EventType: str(EventType.SessionStart),
+        Cols.EventID: "test",
+        Cols.CodeStateID: "test",
+        Cols.SubjectID: "test",
+        Cols.ToolInstances: "test",
+        Cols.SessionID: "test",
+    }
     return event
 
 def test_valid_event(config: SpecConfig):
@@ -37,7 +37,7 @@ def test_invalid_event_type(config):
 
     # Create a sample event
     event = create_valid_event(config)
-    event.EventType = "InvalidEventType"  # Set an invalid event type
+    event[Cols.EventType] = "InvalidEventType"  # Set an invalid event type
 
     errors = event_validator.validate_event(event)
 
@@ -50,7 +50,7 @@ def test_missing_required_column(config):
 
     # Create a sample event
     event = create_valid_event(config)
-    event.SessionID = None  # Set a required column to None
+    event[Cols.SessionID] = None  # Set a required column to None
 
     errors = event_validator.validate_event(event)
 
@@ -64,7 +64,7 @@ def test_unexpected_column(config):
 
     # Create a sample event
     event = create_valid_event(config)
-    event.EditType = "test"  # Add an unexpected column
+    event[Cols.EditType] = "test"  # Add an unexpected column
 
     errors = event_validator.validate_event(event)
 

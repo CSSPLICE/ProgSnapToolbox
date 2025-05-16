@@ -7,7 +7,7 @@ TIMESTAMP_FORMAT_WITHOUT_TIMEZONE = "%Y-%m-%dT%H:%M:%S.%f"
 
 def get_current_timestamp(time = None) -> str:
     """
-    Get the current timestamp in the format YYYY-MM-DDTHH:MM:SS.ssssssZ
+    Get the current timestamp in the appropriate format.
     """
     if not time:
         time = datetime.now()
@@ -15,7 +15,7 @@ def get_current_timestamp(time = None) -> str:
 
 def parse_timestamp(timestamp: str) -> datetime:
     """
-    Parse a timestamp string in the format YYYY-MM-DDTHH:MM:SS.ssssssZ
+    Parse a timestamp string. Throws an exception if the format is not valid.
     """
     for format in (TIMESTAMP_FORMAT_WITH_TIMEZONE, TIMESTAMP_FORMAT_WITHOUT_TIMEZONE):
         try:

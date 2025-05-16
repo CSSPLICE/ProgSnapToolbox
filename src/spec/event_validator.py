@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from spec.datatypes import timestamp_has_timezone
-from spec.events import MainTableEventBase
+from api.events import MainTableEventBase
 from spec.spec_definition import ProgSnap2Spec, Requirement
 from spec.enums import MainTableColumns as Cols
 
@@ -34,7 +34,7 @@ class EventValidator():
     def __init__(self, spec: ProgSnap2Spec):
         self.spec = spec
 
-    def validate_event(self, event: MainTableEventBase) -> list[ValidationError]:
+    def validate_event(self, event: dict[str, any]) -> list[ValidationError]:
         """
         Validate the event against the schema.
         """
@@ -44,14 +44,12 @@ class EventValidator():
 
         # Get all columns that are not None
         # TODO: Could a required column be None? I think not.
-        provided_columns = set([
-            col for col in event.__dict__.keys() if event.__dict__[col] is not None
-        ])
+        provided_columns = [key for key in event.keys() if event[key] is not None]
 
         for col in provided_columns:
             datatype = spec.main_table.get_column(col).datatype
             try:
-                datatype.validate(event[col])
+                datatype.validate_value(event[col])
             except ValueError as e:
                 errors.append(ValidationError(column=col, type=ErrorType.InvalidValueForDatatype))
 
@@ -70,9 +68,9 @@ class EventValidator():
             if col.requirement == Requirement.Optional
         ]
 
-        event_type = spec.main_table.get_event_type(event.EventType)
+        event_type = spec.main_table.get_event_type(event[Cols.EventType])
         if event_type is None:
-            errors.append(ValidationError(column=event.EventType, type=ErrorType.InvalidEventType))
+            errors.append(ValidationError(column=event[Cols.EventType], type=ErrorType.InvalidEventType))
         else:
             required_column_names.extend(
                 event_type.required_columns or []

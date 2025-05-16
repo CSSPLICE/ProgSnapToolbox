@@ -20,5 +20,3 @@ class CodeStateEntry(BaseModel):
     @classmethod
     def from_code(cls, code: str) -> "CodeStateEntry":
         return cls(sections=[CodeStateSectionEntry(Code=code)])
-
-NullableCodeStateEntry = CodeStateEntry | None

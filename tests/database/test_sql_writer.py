@@ -32,13 +32,11 @@ def test_sqlite_writer_add_events(sqlite_writer_factory, sqlite_config, config):
         codestate_gen = CodestateGenerator()
         codestate = codestate_gen.codestate1
 
-        # TODO: Do we support dicts or the actual model?
         event = create_valid_event(config)
-        event_data = event.model_dump()
         temp_codestate_id = "abc123"
-        event_data[MTC.CodeStateID] = temp_codestate_id
+        event[MTC.CodeStateID] = temp_codestate_id
         codestates_dict = {temp_codestate_id: codestate}
 
-        writer.add_events_with_codestates([event_data], codestates_dict)
+        writer.add_events_with_codestates([event], codestates_dict)
 
         # TODO: Do actualy checks (e.g. the CodeStateID is correct - it's not right now)

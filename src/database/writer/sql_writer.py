@@ -29,9 +29,8 @@ class SQLWriter(DBWriter):
     def add_events_with_codestates(self, events: EventList, codestates: CodeStatesMap) -> LogResult:
         result = LogResult(True)
 
-        # TODO: Rework this to work with the dict, not the object
-        # for event in events:
-        #     result.warnings.append([str(warning) for warning in self.context.event_validator.validate_event(event)])
+        for event in events:
+            result.warnings.extend([str(warning) for warning in self.context.event_validator.validate_event(event)])
 
         # TODO: I wonder if we should pass the result to append warnings
         # TODO: Where does the ContextualCodeStateEntry get created here?

@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from api.config import PS2APIConfig
 from api.models import TempCodeStateEntry
 from database.writer.sql_writer import SQLWriter
-from spec.events import DataModelGenerator
+from api.events import DataModelGenerator
 from database.writer.db_writer import DBWriter, LogResult
 from database.writer.db_writer_factory import DBWriterFactory, SQLWriterFactory
 from spec.spec_definition import ProgSnap2Spec

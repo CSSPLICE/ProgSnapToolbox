@@ -1,6 +1,5 @@
 from jinja2 import Template
 
-from spec.events import EventType
 from spec.spec_definition import ProgSnap2Spec, Column
 from spec.datatypes import PS2Datatype
 import textwrap
