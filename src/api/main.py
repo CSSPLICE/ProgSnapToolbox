@@ -25,6 +25,7 @@ api_config = PS2APIConfig.from_yaml("api/api_config.yaml", spec)
 
 db_writer_factory: SQLWriterFactory = DBWriterFactory.create_factory(spec, api_config.database_config)
 
+# TODO: This shouldn't happen every time the server starts
 with db_writer_factory.create() as writer:
     # Create the tables in the database
     writer.initialize_database()
@@ -58,7 +59,7 @@ def get_additional_column_types(additionalColumns: AnyAdditionalColumns):
 
 @app.post("/events", operation_id="addEvents", response_model=LogResult)
 def add_events(events: List[MainTableEvent], writer: SQLWriter = Depends(create_writer)):
-    events = [event.dict() for event in events]
+    events = [event.model_dump() for event in events]
     return writer.add_events_with_codestates(events, {})
 
 @app.post("/code_states", operation_id="addCodeStates")
@@ -66,11 +67,14 @@ def add_code_states(code_states: List[TempCodeState]):
     pass
 
 @app.post("/events_with_code_states", operation_id="addEventsWithCodeStates")
-def add_events_with_code_states(events: List[MainTableEvent], code_states: List[TempCodeState]):
+def add_events_with_code_states(events: List[MainTableEvent], code_states: List[TempCodeState], writer: SQLWriter = Depends(create_writer)):
     """
     Add events and code states to the database at the same time to ensure consistency.
     """
-    pass
+    events = [event.dict() for event in events]
+    # TODO: Something in this conversion is wrong...
+    code_states = {code_state.TempCodeStateID: code_state.Sections for code_state in code_states}
+    return writer.add_events_with_codestates(events, code_states)
 
 @app.get("/generate_api_helper", operation_id="generateAPIHelper", response_class=PlainTextResponse)
 def generate_api_helper() -> str:
