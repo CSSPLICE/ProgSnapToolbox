@@ -2,17 +2,9 @@ from typing import List, Optional, Union
 from pydantic import BaseModel, create_model
 from enum import Enum
 
-from database.codestate.codestate_writer import CodeStateSection
 from spec import datatypes
 from spec.spec_definition import Column, EnumType, EventType, ProgSnap2Spec, Requirement
 from spec.enums import EventType
-
-class TempCodeState(BaseModel):
-    """
-    A class representing the state of a whole project at a given time.
-    """
-    TempCodeStateID: str
-    Sections: List[CodeStateSection] | None
 
 
 class MainTableEventBase(BaseModel):

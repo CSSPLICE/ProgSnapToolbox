@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import hashlib
 from typing import Optional
 
-from spec.codestate import CodeStateEntry, CodeStateSection
+from spec.codestate import CodeStateEntry, CodeStateSectionEntry
 
 
 class ContextualCodeStateEntry(CodeStateEntry):
@@ -36,7 +36,7 @@ class ContextualCodeStateEntry(CodeStateEntry):
 
     @classmethod
     def from_code(cls, code: str, grouping_id: str | None, project_id: str | None) -> "CodeStateEntry":
-        return cls(sections=[CodeStateSection(Code=code)], grouping_id=grouping_id, ProjectID=project_id)
+        return cls(sections=[CodeStateSectionEntry(Code=code)], grouping_id=grouping_id, ProjectID=project_id)
 
 
 class CodeStateWriter(ABC):
@@ -58,5 +58,16 @@ class CodeStateWriter(ABC):
 
     @abstractmethod
     def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:
+        """
+        Add a CodeState to the database and return its ID.
+        """
         pass
+
+    @abstractmethod
+    def add_codestate_with_id(self, codestate: CodeStateEntry, codestate_id: str) -> str:
+        """
+        Try to add a CodeState to the database with a given ID. This may fail,
+        e.g. if the ID is mapped to a different CodeState, or if using a Git representation
+        where the ID must correspond to the commit hash.
+        """
 

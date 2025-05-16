@@ -1,8 +1,12 @@
+import datetime
 from sqlalchemy import insert
-from database.codestate.codestate_writer import CodeStateEntry, CodeStateSection, CodeStateWriter
+from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter
 from database.writer.db_writer import DBWriter, LogResult
 from database.sql_context import SQLContext
-from spec.enums import MainTableColumns as MTC, CoreTables
+from spec.enums import MainTableColumns as Cols
+
+EventList = list[dict[str, any]]
+CodeStatesMap = dict[str, CodeStateEntry]
 
 # TODO: When stable, move non-SQL-specific methods to DBWriter
 class SQLWriter(DBWriter):
@@ -16,46 +20,58 @@ class SQLWriter(DBWriter):
     def conn(self):
         return self.context.conn
 
-    def add_events_with_codestates(self, events: list[dict[str,any]], codestates: dict[str, CodeStateEntry]) -> LogResult:
+    def add_server_timestamps(self, events: EventList) -> None:
+        for event in events:
+            if Cols.ServerTimestamp not in event:
+                event[Cols.ServerTimestamp] = datetime.datetime.now()
+
+    def add_events_with_codestates(self, events: EventList, codestates: CodeStatesMap) -> LogResult:
         result = LogResult(True)
 
         # TODO: Rework this to work with the dict, not the object
         # for event in events:
         #     result.warnings.append([str(warning) for warning in self.context.event_validator.validate_event(event)])
 
-        self.optimize_codestate_ids(events, codestates, result)
+        # TODO: I wonder if we should pass the result to append warnings
+        # TODO: Where does the ContextualCodeStateEntry get created here?
+        if self.context.data_config.optimize_codestate_ids:
+            self._optimize_codestate_ids(events, codestates, result)
+        else:
+            for codestate_id, codestate in codestates.items():
+                self.codestate_writer.add_codestate_with_id(codestate, codestate_id)
 
         main_table = self.context.table_manager.main_table
 
-        # TODO: This doesn't appear to be working...
         for event in events:
             try:
+                print("Insert!")
+                print(event)
                 statement = insert(main_table).values(**event)
                 self.conn.execute(statement)
-                self.conn.commit()
             except Exception as e:
                 result.errors.append(f"Error inserting events: {e}")
                 self.conn.rollback()
                 result.success = False
+                break
+
+        if result.success:
+            self.conn.commit()
 
         return result
 
-    def optimize_codestate_ids(self, events: list[dict[str,any]], codestates: dict[str, CodeStateEntry], result: LogResult) -> None:
-        if not self.context.data_config.optimize_codestate_ids:
-            return
-
+    def _optimize_codestate_ids(self, events: EventList, codestates: CodeStatesMap, result: LogResult) -> None:
         temp_codestate_id_map = {}
         for temp_id, codestate in codestates.items():
             code_state_id = self.codestate_writer.add_codestate_and_get_id(codestate)
             temp_codestate_id_map[temp_id] = code_state_id
 
         for event in events:
-            if MTC.CodeStateID in event:
-                if event[MTC.CodeStateID] not in temp_codestate_id_map:
-                    result.warnings.append(f"CodeStateID {event[MTC.CodeStateID]} not found in temp_codestate_id_map.")
+            if Cols.CodeStateID in event:
+                if event[Cols.CodeStateID] not in temp_codestate_id_map:
+                    result.warnings.append(f"CodeStateID {event[Cols.CodeStateID]} not found in temp_codestate_id_map.")
                     continue
 
-                event[MTC.CodeStateID] = temp_codestate_id_map[event[MTC.CodeStateID]]
+                event[Cols.CodeStateID] = temp_codestate_id_map[event[Cols.CodeStateID]]
 
     def initialize_database(self):
         self.context.table_manager.create_tables(self.conn)

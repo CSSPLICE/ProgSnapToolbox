@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 
 
-class CodeStateSection(BaseModel):
+class CodeStateSectionEntry(BaseModel):
     """
     A class representing the state of a file at a given time.
     """
@@ -14,8 +14,11 @@ class CodeStateEntry(BaseModel):
     """
     A class representing the state of a whole project at a given time.
     """
-    sections: list[CodeStateSection]
+    sections: list[CodeStateSectionEntry]
+    is_blank: bool = False
 
     @classmethod
     def from_code(cls, code: str) -> "CodeStateEntry":
-        return cls(sections=[CodeStateSection(Code=code)])
+        return cls(sections=[CodeStateSectionEntry(Code=code)])
+
+NullableCodeStateEntry = CodeStateEntry | None

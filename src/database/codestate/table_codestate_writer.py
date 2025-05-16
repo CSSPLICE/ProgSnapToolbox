@@ -13,7 +13,10 @@ class TableCodeStateWriter(CodeStateWriter):
 
     def add_codestate_and_get_id(self, codestate: ContextualCodeStateEntry) -> str:
         codestate_id = self.get_codestate_id_from_hash(codestate)
+        self.add_codestate_with_id(codestate, codestate_id)
+        return codestate_id
 
+    def add_codestate_with_id(self, codestate: ContextualCodeStateEntry, codestate_id: str):
         # Execute as a transaction to ensure atomicity
         with self.conn.begin():
             # Check if the code state already exists in the database
@@ -24,7 +27,7 @@ class TableCodeStateWriter(CodeStateWriter):
             if result:
                 # TODO: It might be good to check that the stored code state matches
                 # the one we are trying to add
-                return codestate_id
+                return
 
             # Add the code state to the CodeStates table using a structured query
             for section in codestate.sections:
@@ -34,7 +37,6 @@ class TableCodeStateWriter(CodeStateWriter):
                         Cols.CodeStateSection: section.CodeStateSection
                 })
                 self.conn.execute(statement)
-        return codestate_id
 
 
 

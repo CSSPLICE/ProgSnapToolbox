@@ -15,6 +15,9 @@ class GitCodeStateWriter(CodeStateWriter):
         super().__init__()
         self.root = code_states_dir_path
 
+    def add_codestate_with_id(self, codestate, codestate_id):
+        raise NotImplementedError("GitCodeStateWriter does not support add_codestate_with_id.")
+
     def add_codestate_and_get_id(self, codestate: ContextualCodeStateEntry) -> str:
         grouping_id = codestate.grouping_id or ''
         directory = os.path.join(self.root, grouping_id, codestate.ProjectID)
