@@ -83,10 +83,13 @@ class SQLWriter(DBWriter):
 
         # Add the needed information to codestates
         for id, codestate in codestates.items():
+            print(id)
             if not isinstance(codestate, ContextualCodeStateEntry):
                 project_id = project_id_map.get(id)
                 subject_id = subject_id_map.get(id)
+                print(project_id, subject_id)
                 if self.codestate_writer.requires_project_id() and project_id is None:
+                    print("Adding warning")
                     result.warnings.append(f"CodeState format requires a ProjectID but none provided for CodeStateID {codestate_id}. Using default.")
                     project_id = self.codestate_writer.get_default_project_id()
                 codestate = ContextualCodeStateEntry.from_codestate_entry(codestate, subject_id, project_id)

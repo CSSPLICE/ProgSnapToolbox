@@ -3,6 +3,7 @@ import os
 import pytest
 import sqlite3
 
+from database.codestate.git_codestate_writer import GitCodeStateWriter
 from database.writer.db_writer import LogResult
 from database.writer.db_writer_factory import SQLWriterFactory
 from database.writer.sql_writer import SQLWriter
@@ -68,4 +69,33 @@ def test_add_context_git(sqlite_writer_factory, config):
     assert new_codestate.ProjectID == event[MTC.ProjectID], "Project ID should match the event's ProjectID"
 
 
-# TODO: Test warnings and errors if codestates are lacking
+def test_add_context_warnings(sqlite_writer_factory, config):
+    do_warning_test(sqlite_writer_factory, config, with_git=False)
+
+def test_add_context_git_warnings(sqlite_writer_factory, config):
+    do_warning_test(sqlite_writer_factory, config, with_git=True)
+
+def do_warning_test(sqlite_writer_factory, config, with_git):
+    # Create a non-contextual codestate
+    codestate = CodeStateEntry.from_code("test code!!")
+
+    event = create_valid_event(config)
+    temp_codestate_id = "abc123"
+    event[MTC.CodeStateID] = temp_codestate_id
+    # Remove the ProjectID to trigger a warning
+    event[MTC.ProjectID] = None
+    codestates_dict = {temp_codestate_id: codestate}
+
+    git_writer = GitCodeStateWriter(sqlite_writer_factory.db_config.codestates_dir)
+    assert git_writer.requires_project_id(), "GitCodeStateWriter should require a ProjectID"
+
+    result = LogResult(True)
+    with sqlite_writer_factory.create() as writer:
+        if with_git:
+            # Use the GitCodeStateWriter
+            writer.codestate_writer = git_writer
+        writer._contextualize_codestates([event], codestates_dict, result)
+
+    assert result.success, "Contextualization should succeed"
+    expected_warnings = 1 if with_git else 0
+    assert len(result.warnings) == expected_warnings, f"There should be {expected_warnings} warning"
