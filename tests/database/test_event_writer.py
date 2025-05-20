@@ -6,11 +6,10 @@ from database.helper.event_writer import CODESTATE, EventWriterBase
 from spec.enums import EventType, MainTableColumns as Cols, CodeStatesTableColumns as CodeCols
 from tests.database.conftest import cleanup_temp_dir
 
-
 def test_event_writer_one_event(sqlite_writer_factory):
 
     # Initialize the SQLite writer
-    with sqlite_writer_factory.create() as writer:
+    with sqlite_writer_factory.create_writer() as writer:
 
         writer.initialize_database()
 

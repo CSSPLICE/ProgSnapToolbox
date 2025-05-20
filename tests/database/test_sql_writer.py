@@ -14,7 +14,7 @@ from .test_event_validator import create_valid_event
 from spec.enums import MainTableColumns as MTC, EventType
 
 def test_sqlite_writer_init(sqlite_writer_factory, sqlite_config):
-    with sqlite_writer_factory.create() as writer:
+    with sqlite_writer_factory.create_writer() as writer:
         writer.initialize_database()
 
     db_path = sqlite_writer_factory.db_config.sqlalchemy_url.split(":///")[-1]
@@ -29,7 +29,7 @@ def test_sqlite_writer_init(sqlite_writer_factory, sqlite_config):
     assert len(metadata) == n_metadata_fields, f"Metadata table should have {n_metadata_fields} field, not {len(metadata)}"
 
 def test_sqlite_writer_add_events(sqlite_writer_factory, sqlite_config, config):
-    with sqlite_writer_factory.create() as writer:
+    with sqlite_writer_factory.create_writer() as writer:
         writer.initialize_database()
 
         codestate_gen = CodestateGenerator()
@@ -57,7 +57,7 @@ def test_add_context_git(sqlite_writer_factory, config):
 
     result = LogResult(True)
 
-    with sqlite_writer_factory.create() as writer:
+    with sqlite_writer_factory.create_writer() as writer:
         writer._contextualize_codestates([event], codestates_dict, result)
 
     assert result.success, "Contextualization should succeed"
@@ -90,7 +90,7 @@ def do_warning_test(sqlite_writer_factory, config, with_git):
     assert git_writer.requires_project_id(), "GitCodeStateWriter should require a ProjectID"
 
     result = LogResult(True)
-    with sqlite_writer_factory.create() as writer:
+    with sqlite_writer_factory.create_writer() as writer:
         if with_git:
             # Use the GitCodeStateWriter
             writer.codestate_writer = git_writer

@@ -8,9 +8,7 @@ from spec.event_validator import EventValidator
 from spec.spec_definition import ProgSnap2Spec
 
 @dataclass
-class SQLContext:
-    conn: Connection
-    table_manager: SQLTableManager
+class IOContext:
     data_config: PS2DataConfig
     ps2_spec: ProgSnap2Spec
 
@@ -18,3 +16,8 @@ class SQLContext:
 
     def __post_init__(self):
         self.event_validator = EventValidator(self.ps2_spec)
+
+@dataclass
+class SQLContext(IOContext):
+    conn: Connection
+    table_manager: SQLTableManager

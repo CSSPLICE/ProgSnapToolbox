@@ -13,13 +13,17 @@ from database.writer.sql_writer import SQLContext, SQLWriter
 from spec.enums import CodeStateRepresentation
 from spec.spec_definition import ProgSnap2Spec
 
-class DBWriterFactory(ABC):
+class IOFactory(ABC):
     def __init__(self, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig):
         self.ps2_spec = ps2_spec
         self.db_config = db_config
 
     @abstractmethod
-    def create(self):
+    def create_writer(self):
+        pass
+
+    @abstractmethod
+    def create_reader(self):
         pass
 
     def _create_codestate_writer(self, db_config: PS2DatabaseConfig, context: SQLContext):
@@ -35,7 +39,7 @@ class DBWriterFactory(ABC):
             raise ValueError(f"Invalid code state representation: {code_state_representation}")
 
     @classmethod
-    def create_factory(cls, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "DBWriterFactory":
+    def create_factory(cls, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "IOFactory":
         if isinstance(db_config, PS2DatabaseConfig):
             return SQLWriterFactory(ps2_spec, db_config)
         elif isinstance(db_config, PS2CSVConfig):
@@ -45,7 +49,7 @@ class DBWriterFactory(ABC):
             raise NotImplementedError("CSV writer not implemented yet")
 
 
-class SQLWriterFactory(DBWriterFactory):
+class SQLWriterFactory(IOFactory):
     def __init__(self, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig):
         super().__init__(ps2_spec, db_config)
         # Create the root directory if it doesn't exist
@@ -53,8 +57,12 @@ class SQLWriterFactory(DBWriterFactory):
         self.engine = create_engine(db_config.sqlalchemy_url, echo=db_config.echo)
         self.table_manager = SQLTableManager(ps2_spec, db_config)
 
-    def create(self) -> "SQLWriterContextManager":
+    def create_writer(self) -> "SQLWriterContextManager":
         return SQLWriterContextManager(self)
+
+    def create_reader(self):
+        # TODO
+        pass
 
 # Use a context manager to handle the connection lifecycle
 class SQLWriterContextManager:
@@ -64,7 +72,12 @@ class SQLWriterContextManager:
 
     def __enter__(self):
         self.conn = self.factory.engine.connect()
-        context = SQLContext(self.conn, self.factory.table_manager, self.factory.db_config, self.factory.ps2_spec)
+        context = SQLContext(
+            conn=self.conn,
+            table_manager=self.factory.table_manager,
+            data_config=self.factory.db_config,
+            ps2_spec=self.factory.ps2_spec
+        )
         return SQLWriter(context, self.factory._create_codestate_writer(self.factory.db_config, context))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
