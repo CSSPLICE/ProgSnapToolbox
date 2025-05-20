@@ -36,23 +36,23 @@ def timestamp_has_timezone(timestamp: str) -> bool:
     except ValueError:
         return False
 
+class DBStringLength(Enum):
+    Short = "ID",
+    Path = "Path",
 
-# TODO: Use config instead!
-_SHORT_STRING_LENGTH = 255
-_PATH_STRING_LENGTH = 2048
 class PS2Datatype(Enum):
 
-    ID = ("ID", str, "string", _SHORT_STRING_LENGTH)
-    URL = ("URL", str, "string", _PATH_STRING_LENGTH)
-    RelativePath = ("RelativePath", str, "string", _PATH_STRING_LENGTH)
-    SourceLocation = ("SourceLocation", str, "string", _PATH_STRING_LENGTH)
-    String = ("String", str, "string") # Not max length
+    ID = ("ID", str, "string", DBStringLength.Short)
+    URL = ("URL", str, "string", DBStringLength.Path)
+    RelativePath = ("RelativePath", str, "string", DBStringLength.Path)
+    SourceLocation = ("SourceLocation", str, "string", DBStringLength.Path)
+    String = ("String", str, "string") # Arbitrary length
     Integer = ("Integer", int, "number")
     Real = ("Real", float, "number")
     Boolean = ("Boolean", bool, "boolean")
-    Timestamp = ("Timestamp", str, "string", _SHORT_STRING_LENGTH)
+    Timestamp = ("Timestamp", str, "string", DBStringLength.Short)
     # Typescript type for Enums should be custom, so we use None
-    Enum = ("Enum", str, None, _SHORT_STRING_LENGTH)
+    Enum = ("Enum", str, None, DBStringLength.Short)
 
     def __init__(self, label: str, python_type: type, typescript_type: str, max_str_length: Optional[int] = None):
         self.label = label

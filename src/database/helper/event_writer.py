@@ -58,7 +58,7 @@ class EventWriterBase():
                 raise ValueError(f"Cannot have both {CODESTATE} and {Cols.CodeStateID} in fields.")
 
             code = column_map[CODESTATE]
-            codestate = CodeStateEntry.from_code(code, column_map.get(Cols.SubjectID), column_map.get(Cols.ProjectID))
+            codestate = ContextualCodeStateEntry.from_code(code, column_map.get(Cols.SubjectID), column_map.get(Cols.ProjectID))
             codestates["temp"] = codestate
             column_map[Cols.CodeStateID] = "temp"
 

@@ -51,7 +51,7 @@ class SQLWriterFactory(DBWriterFactory):
         # Create the root directory if it doesn't exist
         os.makedirs(db_config.root_path, exist_ok=True)
         self.engine = create_engine(db_config.sqlalchemy_url, echo=db_config.echo)
-        self.table_manager = SQLTableManager(ps2_spec, db_config.metadata)
+        self.table_manager = SQLTableManager(ps2_spec, db_config)
 
     def create(self) -> "SQLWriterContextManager":
         return SQLWriterContextManager(self)

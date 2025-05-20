@@ -52,7 +52,6 @@ class PS2CSVConfig(PS2DataConfig):
 
 class PS2DatabaseConfig(PS2DataConfig):
     sqlalchemy_url: str
-    id_str_length: int = 255
-    enum_str_length: int = 255
+    short_str_length: int = 255
     path_str_length: int = 2048
     echo: bool = False

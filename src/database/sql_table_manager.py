@@ -7,58 +7,19 @@ from datetime import datetime
 from sqlalchemy import Connection, Index, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum, UniqueConstraint, inspect
 from sqlalchemy.dialects.sqlite import DATETIME
 
-from spec.datatypes import PS2Datatype
+from spec.datatypes import DBStringLength, PS2Datatype
 from spec.spec_definition import ProgSnap2Spec, Property, Requirement, Column as SpecColumn
 from spec.enums import CodeStatesTableColumns as CodeCols, MainTableColumns as Cols, CoreTables
 
 from sqlalchemy import Text, String, Integer, Float, Boolean
 from sqlalchemy.dialects.sqlite import DATETIME
 
-def map_datatype(datatype: PS2Datatype):
-    """
-    Maps ProgSnap2 datatype strings to SQLAlchemy column types.
-    Expand this as needed for more precise typing or databases.
-    """
-
-    if datatype.max_str_length is not None:
-        # If the datatype has a max string length, use that
-        return String(datatype.max_str_length)
-
-    if datatype.python_type == str:
-        # If the datatype is a string but has no max length, use Text
-        return Text
-
-    # Convert python type to SQL type
-    type_map = {
-        int: Integer,
-        float: Float,
-        bool: Boolean,
-        # Currently unused, since it doesn't support timezone
-        # datetime: DATETIME(timezone=True),
-    }
-    if datatype.python_type not in type_map:
-        raise ValueError(f"Unconvertible datatype: {datatype.python_type}")
-
-    return type_map.get(datatype.python_type)
-
-
-
-def define_column(column_spec: SpecColumn):
-    """
-    Define a SQLAlchemy column based on the column spec.
-    """
-    required = column_spec.requirement == Requirement.Required
-    col_type = map_datatype(column_spec.datatype)
-    kwargs = {
-        'nullable': not required,
-        'doc': column_spec.description
-    }
-    return SQLColumn(column_spec.name, col_type, **kwargs)
 
 class SQLTableManager:
-    def __init__(self, spec: ProgSnap2Spec, metadata_values):
-        self.metadata_values = metadata_values
+    def __init__(self, spec: ProgSnap2Spec, db_config: PS2DatabaseConfig):
+        self.metadata_values = db_config.metadata
         self.spec = spec
+        self.db_config = db_config
         self._sql_metadata: MetaData = None
         self.main_table: Table = None
         self.link_tables: dict[str, Table] = {}
@@ -81,6 +42,50 @@ class SQLTableManager:
         return inspect(conn.engine).has_table(self.metadata_table.name)
 
 
+    def map_datatype(self, datatype: PS2Datatype):
+        """
+        Maps ProgSnap2 datatype strings to SQLAlchemy column types.
+        Expand this as needed for more precise typing or databases.
+        """
+
+        if datatype.max_str_length is not None:
+            if datatype.max_str_length == DBStringLength.Short:
+                return String(self.db_config.short_str_length)
+            elif datatype.max_str_length == DBStringLength.Path:
+                return String(self.db_config.path_str_length)
+
+        if datatype.python_type == str:
+            # If the datatype is a string but has no max length, use Text
+            return Text
+
+        # Convert python type to SQL type
+        type_map = {
+            int: Integer,
+            float: Float,
+            bool: Boolean,
+            # Currently unused, since it doesn't support timezone
+            # datetime: DATETIME(timezone=True),
+        }
+        if datatype.python_type not in type_map:
+            raise ValueError(f"Unconvertible datatype: {datatype.python_type}")
+
+        return type_map.get(datatype.python_type)
+
+
+
+    def define_column(self, column_spec: SpecColumn):
+        """
+        Define a SQLAlchemy column based on the column spec.
+        """
+        required = column_spec.requirement == Requirement.Required
+        col_type = self.map_datatype(column_spec.datatype)
+        kwargs = {
+            'nullable': not required,
+            'doc': column_spec.description
+        }
+        return SQLColumn(column_spec.name, col_type, **kwargs)
+
+
     def _define_tables(self):
         self._sql_metadata = metadata = MetaData()
         spec = self.spec
@@ -97,15 +102,15 @@ class SQLTableManager:
         main_columns = []
 
         for col in spec.main_table.columns:
-            main_columns.append(define_column(col))
+            main_columns.append(self.define_column(col))
 
         self.main_table = Table(
             CoreTables.MainTable, metadata,
             *main_columns
         )
 
-        id_datatype = map_datatype(PS2Datatype.ID)
-        path_datatype = map_datatype(PS2Datatype.RelativePath)
+        id_datatype = self.map_datatype(PS2Datatype.ID)
+        path_datatype = self.map_datatype(PS2Datatype.RelativePath)
 
         for link_table in spec.link_tables:
             columns = []
@@ -114,7 +119,7 @@ class SQLTableManager:
                 columns.append(SQLColumn(id_col, id_datatype, nullable=False))
             # Additional columns
             for add_col in link_table.additional_columns:
-                columns.append(define_column(add_col))
+                columns.append(self.define_column(add_col))
 
             tbl = Table(
                 link_table.name, metadata,
