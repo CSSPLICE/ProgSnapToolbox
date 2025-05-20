@@ -1,5 +1,6 @@
 # server/main.py
 from enum import Enum
+import os
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Type
@@ -15,18 +16,20 @@ from database.writer.db_writer_factory import DBWriterFactory, SQLWriterFactory
 from spec.spec_definition import ProgSnap2Spec
 from spec.gen.gen_client import generate_ts_methods
 
-spec = ProgSnap2Spec.from_yaml("spec/progsnap2.yaml")
+file_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.join(file_dir, "..")
+
+spec = ProgSnap2Spec.from_yaml(os.path.join(src_dir, "spec/progsnap2.yaml"))
 
 data_model_gen = DataModelGenerator(spec)
 MainTableEvent = data_model_gen.MainTableEvent
 AnyAdditionalColumns = data_model_gen.AnyAdditionalColumns
 
 
-api_config = PS2APIConfig.from_yaml("api/api_config.yaml", spec)
+api_config = PS2APIConfig.from_yaml(os.path.join(src_dir, "api/api_config.yaml"), spec)
 
 db_writer_factory: SQLWriterFactory = DBWriterFactory.create_factory(spec, api_config.database_config)
 
-# TODO: This shouldn't happen every time the server starts
 with db_writer_factory.create() as writer:
     # Create the tables in the database
     writer.initialize_database()
@@ -60,7 +63,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal Server Error"},
     )
 
-# TODO: I don't think this is needed (or the whole type), but I'll keep for now
+# I don't think this is needed (or the whole type), but I'll keep for now
 @app.get("/placeholder")
 def get_additional_column_types(additionalColumns: AnyAdditionalColumns): # type: ignore
     """

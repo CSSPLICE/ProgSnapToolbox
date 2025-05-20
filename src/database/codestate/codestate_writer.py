@@ -23,7 +23,7 @@ class ContextualCodeStateEntry(CodeStateEntry):
 
     # Must include the subject ID, since this is needed for
     # Directory and Git representations
-    grouping_id: str = None
+    grouping_id: Optional[str] = None
     ProjectID: Optional[str] = None
 
     @classmethod
@@ -55,6 +55,18 @@ class CodeStateWriter(ABC):
 
     def _get_default_codestate_section():
         return 'default.txt'
+
+    def requires_project_id(self) -> bool:
+        """
+        Check if the CodeStateWriter requires a project ID.
+        """
+        return False
+
+    def get_default_project_id(self) -> str:
+        """
+        Get the default project ID.
+        """
+        return "DefaultProject"
 
     @abstractmethod
     def add_codestate_and_get_id(self, codestate: CodeStateEntry) -> str:

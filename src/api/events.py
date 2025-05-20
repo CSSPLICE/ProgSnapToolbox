@@ -11,8 +11,6 @@ class MainTableEventBase(BaseModel):
     """
     A class representing an event in the main table.
     """
-    # TODO: Figure out what to do with the CodeStateID
-    # TempCodeStateID: str
 
 
 # TODO: Explore if we can add documentation to fields or enum values

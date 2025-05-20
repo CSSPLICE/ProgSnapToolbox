@@ -43,7 +43,7 @@ class EventValidator():
         spec = self.spec
 
         # Get all columns that are not None
-        # TODO: Could a required column be None? I think not.
+        # Requires columns can never be None; we use the empty string for some "not present" values
         provided_columns = [key for key in event.keys() if event[key] is not None]
 
         for col in provided_columns:

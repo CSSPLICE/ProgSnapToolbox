@@ -1,2 +1,1 @@
-cd src
-uvicorn api.main:app --reload
+set PYTHONPATH=./src && uvicorn --app-dir ./src api.main:app --reload

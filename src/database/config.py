@@ -29,9 +29,6 @@ class PS2DataConfig(BaseModel):
     def codestates_dir(self) -> str:
         return os.path.join(self.root_path, "CodeStates")
 
-    # TODO: I don't love that this has multiple possible types
-    # so maybe require the spec to load it? Not sure... Or create
-    # a MetadataValuesBase calss...
     def validate_metadata(self, spec: ProgSnap2Spec) -> bool:
         metadata_class = create_metadata_values_model(spec.metadata)
         try:

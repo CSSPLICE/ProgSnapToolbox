@@ -4,12 +4,12 @@ from spec.enums import CodeStateRepresentation
 from spec.spec_definition import ProgSnap2Spec
 
 from datetime import datetime
-from sqlalchemy import Connection, Index, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum, UniqueConstraint
+from sqlalchemy import Connection, Index, MetaData, Table, Column as SQLColumn, Integer, String, Float, Enum as SQLEnum, UniqueConstraint, inspect
 from sqlalchemy.dialects.sqlite import DATETIME
 
 from spec.datatypes import PS2Datatype
 from spec.spec_definition import ProgSnap2Spec, Property, Requirement, Column as SpecColumn
-
+from spec.enums import CodeStatesTableColumns as CodeCols, MainTableColumns as Cols, CoreTables
 
 from sqlalchemy import Text, String, Integer, Float, Boolean
 from sqlalchemy.dialects.sqlite import DATETIME
@@ -73,13 +73,21 @@ class SQLTableManager:
         """
         return self.codestates_table is not None
 
+    def have_tables_been_created(self, conn: Connection) -> bool:
+        """
+        Check if tables have already been created.
+        Note: this does not check whether tables are out of date.
+        """
+        return inspect(conn.engine).has_table(self.metadata_table.name)
+
+
     def _define_tables(self):
         self._sql_metadata = metadata = MetaData()
         spec = self.spec
 
         # --- Metadata Table ---
         self.metadata_table = Table(
-            "Metadata", metadata,
+            CoreTables.Metadata, metadata,
             SQLColumn("Property", String(255), nullable=False),
             # Value has various datatypes, so we'll store all al strings
             SQLColumn("Value", String(2048), nullable=False)
@@ -92,7 +100,7 @@ class SQLTableManager:
             main_columns.append(define_column(col))
 
         self.main_table = Table(
-            "MainTable", metadata,
+            CoreTables.MainTable, metadata,
             *main_columns
         )
 
@@ -114,16 +122,15 @@ class SQLTableManager:
             )
             self.link_tables[link_table.name] = tbl
 
-        # TODO: Replace hard-coded values with enum names
         if self.metadata_values.CodeStateRepresentation == CodeStateRepresentation.Table:
 
             self.codestates_table = Table(
-                "CodeStates", metadata,
-                SQLColumn("CodeStateID", id_datatype),
-                SQLColumn("CodeStateSection", path_datatype, nullable=True),
-                SQLColumn("Code", Text(), nullable=False),
-                UniqueConstraint("CodeStateID", "CodeStateSection", name="uq_codestate_id_section"),
-                Index("ix_codestate_id", "CodeStateID"),
+                CoreTables.CodeStates, metadata,
+                SQLColumn(CodeCols.CodeStateID, id_datatype),
+                SQLColumn(CodeCols.CodeStateSection, path_datatype, nullable=True),
+                SQLColumn(CodeCols.Code, Text(), nullable=False),
+                UniqueConstraint(CodeCols.CodeStateID, CodeCols.CodeStateSection, name="uq_codestate_id_section"),
+                Index("ix_codestate_id", CodeCols.CodeStateID),
             )
 
     def create_tables(self, conn: Connection):
