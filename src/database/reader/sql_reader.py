@@ -7,15 +7,13 @@ import pandas as pd
 from pandas import DataFrame
 
 from database.sql_table_manager import SQLTableManager
+from spec.codestate import CodeStateEntry
 
 
 class SQLReader(PS2Reader):
 
-    # TODO: If I'm not really using SQLalchemy directly, it's worth asking
-    # if I need the whole SQLContext or if a better approach makes sense.
-    # Will come back to this later.
-    def __init__(self, codestate_io: CodeStateWriter, context: SQLContext):
-        super().__init__(codestate_io, context)
+    def __init__(self, context: SQLContext, codestate_io: CodeStateWriter):
+        super().__init__(context, codestate_io)
 
     @property
     def table_manager(self) -> SQLTableManager:
@@ -26,6 +24,10 @@ class SQLReader(PS2Reader):
             f"SELECT * FROM {self.table_manager.main_table_name}",
             self.context.conn,
         )
+
+    def add_codestate(self, codestate_id: str, subject_id: str, project_id: str) -> CodeStateEntry:
+        # TODO: Now sure how I want to do this yet.
+        pass
 
     def get_main_table(self) -> DataFrame:
         return self._get_table(self.table_manager.main_table_name)

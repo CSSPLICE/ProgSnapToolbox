@@ -8,9 +8,9 @@ from spec.codestate import CodeStateEntry
 
 class PS2Reader(ABC):
 
-    def __init__(self, codestate_io: CodeStateWriter, context: IOContext):
-        self.codestate_io = codestate_io
+    def __init__(self, context: IOContext, codestate_io: CodeStateWriter):
         self.context = context
+        self.codestate_io = codestate_io
 
     @abstractmethod
     def get_main_table(self) -> DataFrame:

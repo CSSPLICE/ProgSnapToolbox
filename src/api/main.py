@@ -12,7 +12,7 @@ from api.models import TempCodeStateEntry
 from database.writer.sql_writer import SQLWriter
 from api.events import DataModelGenerator
 from database.writer.db_writer import DBWriter, LogResult
-from database.writer.db_writer_factory import IOFactory, SQLWriterFactory
+from database.writer.db_writer_factory import IOFactory, SQLIOFactory
 from spec.spec_definition import ProgSnap2Spec
 from spec.gen.gen_client import generate_ts_methods
 
@@ -28,7 +28,7 @@ AnyAdditionalColumns = data_model_gen.AnyAdditionalColumns
 
 api_config = PS2APIConfig.from_yaml(os.path.join(src_dir, "api/api_config.yaml"), spec)
 
-db_writer_factory: SQLWriterFactory = IOFactory.create_factory(spec, api_config.database_config)
+db_writer_factory: SQLIOFactory = IOFactory.create_factory(spec, api_config.database_config)
 
 with db_writer_factory.create_writer() as writer:
     # Create the tables in the database

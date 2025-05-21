@@ -8,10 +8,15 @@ from database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataConfig
 
 from sqlalchemy import Connection, create_engine
 from database.config import PS2DatabaseConfig, PS2DataConfig
+from database.reader.csv_reader import CSVReader
+from database.reader.sql_reader import SQLReader
+from database.sql_context import IOContext
 from database.sql_table_manager import SQLTableManager
 from database.writer.sql_writer import SQLContext, SQLWriter
 from spec.enums import CodeStateRepresentation
 from spec.spec_definition import ProgSnap2Spec
+
+# TODO: Rename this file
 
 class IOFactory(ABC):
     def __init__(self, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig):
@@ -41,7 +46,7 @@ class IOFactory(ABC):
     @classmethod
     def create_factory(cls, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "IOFactory":
         if isinstance(db_config, PS2DatabaseConfig):
-            return SQLWriterFactory(ps2_spec, db_config)
+            return SQLIOFactory(ps2_spec, db_config)
         elif isinstance(db_config, PS2CSVConfig):
             # CSV Writer would be reasonable in a log translation context
             # But really what's the advantage? I think we should only
@@ -49,26 +54,26 @@ class IOFactory(ABC):
             raise NotImplementedError("CSV writer not implemented yet")
 
 
-class SQLWriterFactory(IOFactory):
+class SQLIOFactory(IOFactory):
     def __init__(self, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig):
         super().__init__(ps2_spec, db_config)
-        # Create the root directory if it doesn't exist
-        os.makedirs(db_config.root_path, exist_ok=True)
         self.engine = create_engine(db_config.sqlalchemy_url, echo=db_config.echo)
         self.table_manager = SQLTableManager(ps2_spec, db_config)
 
-    def create_writer(self) -> "SQLWriterContextManager":
-        return SQLWriterContextManager(self)
+    def create_writer(self) -> "SQLIOContextManager":
+        # Create the root directory if it doesn't exist
+        os.makedirs(self.db_config.root_path, exist_ok=True)
+        return SQLIOContextManager(self, False)
 
     def create_reader(self):
-        # TODO
-        pass
+        return SQLIOContextManager(self, True)
 
 # Use a context manager to handle the connection lifecycle
-class SQLWriterContextManager:
-    def __init__(self, factory: SQLWriterFactory):
+class SQLIOContextManager:
+    def __init__(self, factory: SQLIOFactory, reader: bool):
         self.factory = factory
         self.conn = None
+        self.reader = reader
 
     def __enter__(self):
         self.conn = self.factory.engine.connect()
@@ -78,9 +83,39 @@ class SQLWriterContextManager:
             data_config=self.factory.db_config,
             ps2_spec=self.factory.ps2_spec
         )
-        return SQLWriter(context, self.factory._create_codestate_writer(self.factory.db_config, context))
+        codestate_io = self.factory._create_codestate_writer(self.factory.db_config, context)
+        if self.reader:
+            return SQLReader(context, codestate_io)
+        else:
+            return SQLWriter(context, codestate_io)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.conn:
             self.conn.close()
 
+class CSVIOFactory(IOFactory):
+    def __init__(self, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig):
+        super().__init__(ps2_spec, db_config)
+
+    def create_writer(self) -> "CSVIOContextManager":
+        raise NotImplementedError("CSV writer not implemented.")
+
+    def create_reader(self):
+        return CSVIOContextManager(self, True)
+
+class CSVIOContextManager:
+
+    def __init__(self, factory: CSVIOFactory):
+        self.factory = factory
+
+    def __enter__(self):
+        context = IOContext(
+            data_config=self.factory.db_config,
+            ps2_spec=self.factory.ps2_spec
+        )
+        codestate_io = self.factory._create_codestate_writer(self.factory.db_config, context)
+        return CSVReader(context, codestate_io)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # No explicit cleanup needed for CSVReader
+        pass

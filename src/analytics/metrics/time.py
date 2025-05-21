@@ -50,7 +50,7 @@ class TimeMetrics:
         self.time_col = time_col
         self.sort_first = not is_data_already_time_sorted
 
-    def claculate(self, rows: DataFrame) -> dict[str, any]:
+    def calculate(self, rows: DataFrame) -> dict[str, any]:
         if self.sort_first:
             rows = rows.sort_values(by=[self.time_col])
 

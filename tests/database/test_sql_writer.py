@@ -5,7 +5,7 @@ import sqlite3
 
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 from database.writer.db_writer import LogResult
-from database.writer.db_writer_factory import SQLWriterFactory
+from database.writer.db_writer_factory import SQLIOFactory
 from database.writer.sql_writer import SQLWriter
 from spec.codestate import CodeStateEntry
 from .conftest import cleanup_temp_dir

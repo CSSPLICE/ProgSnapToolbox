@@ -4,3 +4,4 @@ __pycache__/
 *.db
 progsnap2/api/api_config.yaml
 test_data/
+sample_data/

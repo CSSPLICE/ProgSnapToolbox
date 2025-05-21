@@ -3,7 +3,7 @@ import os
 import pytest
 
 from database.config import PS2DatabaseConfig
-from database.writer.db_writer_factory import SQLWriterFactory
+from database.writer.db_writer_factory import SQLIOFactory
 from spec.spec_definition import ProgSnap2Spec
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +27,7 @@ def sqlite_config(ps2_spec) -> PS2DatabaseConfig:
 
 @pytest.fixture(scope="session")
 def sqlite_writer_factory(ps2_spec, sqlite_config):
-    return SQLWriterFactory(ps2_spec, sqlite_config)
+    return SQLIOFactory(ps2_spec, sqlite_config)
 
 
 TEMP_DIR = "test_data"
