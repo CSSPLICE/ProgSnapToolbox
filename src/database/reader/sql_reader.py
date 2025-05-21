@@ -21,8 +21,23 @@ class SQLReader(PS2Reader):
     def table_manager(self) -> SQLTableManager:
         return self.context.table_manager
 
-    def get_main_table(self) -> DataFrame:
+    def _get_table(self, table_name: str) -> DataFrame:
         pd.read_sql(
             f"SELECT * FROM {self.table_manager.main_table_name}",
             self.context.conn,
         )
+
+    def get_main_table(self) -> DataFrame:
+        return self._get_table(self.table_manager.main_table_name)
+
+    def get_metadata_table(self):
+        return self._get_table(self.table_manager.metadata_table_name)
+
+    def get_link_table(self, table_name):
+        if table_name not in self.table_manager.link_tables:
+            raise ValueError(f"Table {table_name} does not exist in the database.")
+
+        return self._get_table(table_name)
+
+    def get_link_table_names(self):
+        return self.table_manager.link_tables.keys()
