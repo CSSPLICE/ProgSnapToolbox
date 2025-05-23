@@ -13,7 +13,7 @@ from database.writer.sql_writer import SQLWriter
 from api.events import DataModelGenerator
 from database.writer.db_writer import DBWriter, LogResult
 from database.writer.db_writer_factory import IOFactory, SQLIOFactory
-from spec.spec_definition import ProgSnap2Spec
+from spec.spec_definition import PS2Versions, ProgSnap2Spec
 from spec.gen.gen_client import generate_ts_methods
 
 file_dir = os.path.dirname(os.path.abspath(__file__))

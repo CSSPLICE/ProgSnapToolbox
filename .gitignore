@@ -6,3 +6,4 @@ progsnap2/api/api_config.yaml
 test_data/
 sample_data/
 generated_docs/
+*.egg-info

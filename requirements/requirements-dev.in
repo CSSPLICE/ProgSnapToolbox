@@ -1,0 +1,5 @@
+jinja2
+jupyter
+uvicorn
+pytest
+pip-tools
