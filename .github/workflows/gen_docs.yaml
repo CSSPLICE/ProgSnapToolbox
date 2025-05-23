@@ -39,7 +39,7 @@ jobs:
         run: mkdocs build --clean
 
       - name: Upload built site to Pages
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site  # MkDocs outputs here by default
 
@@ -49,4 +49,4 @@ jobs:
 
     steps:
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
