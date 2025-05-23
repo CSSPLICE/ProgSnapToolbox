@@ -1,4 +1,4 @@
-
+from enum import Enum
 
 class CoreTables(str, Enum):
     """Primary tables in the database."""

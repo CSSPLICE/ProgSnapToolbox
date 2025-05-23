@@ -28,8 +28,7 @@ def _generate_imports() -> str:
     """
     Generate the import statements for the enums.
     """
-    # Stopped using StrEnum, so no imports right now
-    return ""
+    return "from enum import Enum"
 
 def format_docstring(doc: str, indent: str) -> str:
     """
