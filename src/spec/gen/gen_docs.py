@@ -79,14 +79,14 @@ def render_property(prop: Property, spec: ProgSnap2Spec) -> str:
         if prop.requirement == Requirement.EventSpecific:
             required_events = [event for event in spec.main_table.event_types if event.is_column_required(prop.name)]
             if required_events:
-                lines.append("\n- *Required for these [EventTypes](#eventtype)*:\n")
+                lines.append("- *Required for these [EventTypes](#eventtype)*:")
                 for event in required_events:
-                    lines.append(f"  - {event.name}")
+                    lines.append(f"    - {event.name}")
             optional_events = [event for event in spec.main_table.event_types if event.is_column_specific_to_event(prop.name)]
             if optional_events:
-                lines.append("\n- *Optional for these [EventTypes](#eventtype)*:\n")
+                lines.append("- *Optional for these [EventTypes](#eventtype)*:")
                 for event in optional_events:
-                    lines.append(f"  - {event.name}")
+                    lines.append(f"    - {event.name}")
 
     if prop.datatype == PS2Datatype.Enum:
         lines.append(f"\n**{prop.name} Allowed Values**:\n")
@@ -165,8 +165,7 @@ def render_spec(spec: ProgSnap2Spec) -> str:
     Render the entire specification as a Markdown document.
     """
     lines = []
-    lines.append("# ProgSnap2 Specification")
-    lines.append(f"Version: {spec.version}")
+    lines.append(f"# ProgSnap2 v{spec.version}")
     lines.append("""\nThis document describes details of the ProgSnap2 specification. A full reference on the specification can be found [here](https://docs.google.com/document/d/1qknzmWr1FL3r8a2BoYyIBQDSWEgBs1jhzdrR-bYh4zI/edit?tab=t.0).""")
     lines.append(render_metadata_section(spec))
     lines.append(render_main_table(spec))
