@@ -1,20 +1,20 @@
-from enum import StrEnum
 
-class CoreTables(StrEnum):
+
+class CoreTables(str, Enum):
     """Primary tables in the database."""
     MainTable = 'MainTable'
     Metadata = 'Metadata'
     CodeStates = 'CodeStates'
 
 
-class CodeStatesTableColumns(StrEnum):
+class CodeStatesTableColumns(str, Enum):
     """Valid columns for the CodeStates table."""
     CodeStateID = 'CodeStateID'
     Code = 'Code'
     CodeStateSection = 'CodeStateSection'
 
 
-class MetadataProperties(StrEnum):
+class MetadataProperties(str, Enum):
     """Valid properties for the metadata table."""
     Version = 'Version'
     """
@@ -47,7 +47,7 @@ class MetadataProperties(StrEnum):
 
 
 
-class MainTableColumns(StrEnum):
+class MainTableColumns(str, Enum):
     """Valid columns for the MainTable."""
     EventType = 'EventType'
     """
@@ -324,7 +324,7 @@ class MainTableColumns(StrEnum):
 
 
 
-class EventType(StrEnum):
+class EventType(str, Enum):
     """Possible values for the EventType columns of the MainTable."""
     SessionStart = 'Session.Start'
     """Marks the start of a work session."""
@@ -374,7 +374,7 @@ class EventType(StrEnum):
     """Indicates that an intervention such as a hint was done."""
 
 
-class LinkTableNames(StrEnum):
+class LinkTableNames(str, Enum):
     """Defined LinkTables"""
     LinkSubject = 'LinkSubject'
     """
@@ -383,12 +383,12 @@ class LinkTableNames(StrEnum):
 
 
 
-class LinkSubjectColumns(StrEnum):
+class LinkSubjectColumns(str, Enum):
     SubjectID = 'SubjectID'
     MidtermExamScore = 'MidtermExamScore'
 
 
-class CodeStateRepresentation(StrEnum):
+class CodeStateRepresentation(str, Enum):
     Table = 'Table'
     """CodeStates will be stored in a CodeStates table along with other tables in the database."""
     Directory = 'Directory'
@@ -397,7 +397,7 @@ class CodeStateRepresentation(StrEnum):
     """CodeStates will be stored in Git repositories, with commit hashes used as CodeStateIDs, organized by SubjectID and ProjectID."""
 
 
-class EventInitiator(StrEnum):
+class EventInitiator(str, Enum):
     UserDirectAction = 'UserDirectAction'
     """Indicates that the user directly instigated the action."""
     UserIndirectAction = 'UserIndirectAction'
@@ -416,7 +416,7 @@ class EventInitiator(StrEnum):
     """Indicates that a team member indirectly caused the event; for example, if two students are pair-programming on a shared screen."""
 
 
-class EventOrderScope(StrEnum):
+class EventOrderScope(str, Enum):
     Global = 'Global'
     """Indicates that the Order column values are intended to be meaningful to determine the order of all events (globally) in the dataset."""
     Restricted = 'Restricted'
@@ -425,7 +425,7 @@ class EventOrderScope(StrEnum):
     """Indicates that the Order column values should never be assumed to determine an ordering for any events; in other words, the events are not ordered."""
 
 
-class EditType(StrEnum):
+class EditType(str, Enum):
     Insert = 'Insert'
     """Indicates that one or more characters or values have been added."""
     Delete = 'Delete'
@@ -448,20 +448,20 @@ class EditType(StrEnum):
     """Any generic edit that can not be described by the edits listed above. If your dataset contains a new category of edits not defined here, we recommend defining a custom value for this enumeration, rather than using GenericEdit."""
 
 
-class CompileResult(StrEnum):
+class CompileResult(str, Enum):
     Success = 'Success'
     Warning = 'Warning'
     Error = 'Error'
 
 
-class ExecutionResult(StrEnum):
+class ExecutionResult(str, Enum):
     Success = 'Success'
     Timeout = 'Timeout'
     Error = 'Error'
     TestFailed = 'TestFailed'
 
 
-class InterventionCategory(StrEnum):
+class InterventionCategory(str, Enum):
     Feedback = 'Feedback'
     Hint = 'Hint'
     CodeHighlight = 'CodeHighlight'

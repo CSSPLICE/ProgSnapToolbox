@@ -28,7 +28,8 @@ def _generate_imports() -> str:
     """
     Generate the import statements for the enums.
     """
-    return "from enum import StrEnum"
+    # Stopped using StrEnum, so no imports right now
+    return ""
 
 def format_docstring(doc: str, indent: str) -> str:
     """
@@ -44,7 +45,7 @@ def format_docstring(doc: str, indent: str) -> str:
 
 
 def generate_enum(enum_name: str, enum_values: list[str], doc: str = None, docs: list[str] = None) -> str:
-    enum_str = f"class {enum_name}(StrEnum):\n"
+    enum_str = f"class {enum_name}(str, Enum):\n"
     if doc:
         enum_str += format_docstring(doc, "    ")
     for value, value_doc in zip(enum_values, docs or [None] * len(enum_values)):
