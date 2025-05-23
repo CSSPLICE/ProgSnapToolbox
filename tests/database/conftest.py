@@ -4,7 +4,7 @@ import pytest
 
 from database.config import PS2DatabaseConfig
 from database.writer.db_writer_factory import SQLIOFactory
-from spec.spec_definition import ProgSnap2Spec
+from spec.spec_definition import PS2Versions, ProgSnap2Spec
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -15,8 +15,7 @@ def run_clean_temp_dir():
 
 @pytest.fixture(scope="session")
 def ps2_spec() -> ProgSnap2Spec:
-    spec_path = "src/spec/progsnap2.yaml"
-    spec = ProgSnap2Spec.from_yaml(spec_path)
+    spec = PS2Versions.v1_0.load()
     return spec
 
 @pytest.fixture(scope="session")

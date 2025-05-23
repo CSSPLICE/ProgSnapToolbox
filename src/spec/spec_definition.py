@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 from pydantic import BaseModel, computed_field, field_validator, model_validator
 from enum import Enum
+from importlib.resources import open_text
 import yaml
 
 from spec.datatypes import PS2Datatype
@@ -104,6 +106,8 @@ class ProgSnap2Spec(BaseModel):
     metadata: Metadata
     enum_types: List[EnumType]
     main_table: MainTable
+    # TODO: Should these be defined in a separate yaml, since you could use 100% PS2 and add
+    # LinkTables without deviating from the spec...
     link_tables: List[LinkTableSpec]
 
     @model_validator(mode="after")
@@ -121,3 +125,31 @@ class ProgSnap2Spec(BaseModel):
         with open(yaml_path, "r", encoding='utf-8') as file:
             data = yaml.safe_load(file)
         return cls(**data)
+
+
+@dataclass(frozen=True)
+class ProgSnap2Version():
+    name: str
+    default: bool = False
+
+    def load(self) -> ProgSnap2Spec:
+        versions_package = f"{__package__}.versions"
+        prefix = "progsnap2-v"
+        suffix = ".yaml"
+        with open_text(versions_package, f"{prefix}{self.name}{suffix}") as file:
+            return ProgSnap2Spec.from_yaml(file.name)
+
+class PS2Versions(Enum):
+    v1_0 = ProgSnap2Version(name="1.0", default=True)
+
+    def load(self) -> ProgSnap2Spec:
+        return self.value.load()
+
+    @classmethod
+    def load_default(cls) -> ProgSnap2Spec:
+        for version in cls:
+            if version.value.default:
+                return version.value.load()
+        raise ValueError("No default version found")
+
+

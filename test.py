@@ -6,12 +6,12 @@ sys.path.insert(0, src_path)
 from sqlalchemy import create_engine
 from spec.gen.gen_client import generate_ts_methods
 from spec.gen.gen_enums import generate_enums_for_spec
-from spec.spec_definition import ProgSnap2Spec
+from spec.spec_definition import PS2Versions, ProgSnap2Spec
 from spec.enums import EventType
 
 if __name__ == "__main__":
     # Load schema
-    schema = ProgSnap2Spec.from_yaml("src/spec/progsnap2.yaml")
+    schema = PS2Versions.v1_0.load()
 
     out = generate_enums_for_spec(schema)
     with open("src/spec/enums.py", "w", encoding='utf-8') as f:

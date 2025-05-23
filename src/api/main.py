@@ -19,7 +19,7 @@ from spec.gen.gen_client import generate_ts_methods
 file_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(file_dir, "..")
 
-spec = ProgSnap2Spec.from_yaml(os.path.join(src_dir, "spec/progsnap2.yaml"))
+spec = PS2Versions.v1_0.load()
 
 data_model_gen = DataModelGenerator(spec)
 MainTableEvent = data_model_gen.MainTableEvent

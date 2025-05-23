@@ -5,3 +5,4 @@ __pycache__/
 progsnap2/api/api_config.yaml
 test_data/
 sample_data/
+generated_docs/
