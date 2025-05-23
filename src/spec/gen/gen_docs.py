@@ -1,9 +1,6 @@
 
 
-from enum import EnumType
 from typing import List
-
-from jinja2 import Template
 
 from spec.datatypes import PS2Datatype
 from spec.enums import MainTableColumns
