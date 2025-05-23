@@ -16,5 +16,7 @@ for version in PS2Versions:
     if version.value.default:
         paths.append(os.path.join(docs_path, "ProgSnap2.md"))
     for path in paths:
+        # Create the directory if it doesn't exist
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding='utf-8') as f:
             f.write(markdown)

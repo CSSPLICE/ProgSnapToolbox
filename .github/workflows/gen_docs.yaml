@@ -3,10 +3,6 @@ name: Build Docs
 on:
   push:
     branches: [main]
-    paths:
-      - 'src/spec/**/*.yaml'
-      - 'src/spec/gen/gen_docs.py'
-      - 'scripts/**'
   workflow_dispatch:
 
 jobs:
