@@ -24,12 +24,15 @@ def make_markdown_table(headers, rows):
 
     return "\n".join(table)
 
-def get_enum_table(enum_values: List[EnumValue]) -> str:
+def get_enum_table(enum_values: List[EnumValue], add_links=False) -> str:
     headers = ["Enum Value", "Description"]
     rows = []
     for enum_value in enum_values:
         description = enum_value.description or ""
-        rows.append([enum_value.name, description])
+        name = enum_value.name
+        if add_links:
+            name = f"<a id='{format_event_type_link(name)}'></a>{name}"
+        rows.append([name, description])
     return headers, rows
 
 def format_enum_table_rows(enum_values: List[EnumValue]) -> str:
@@ -37,7 +40,7 @@ def format_enum_table_rows(enum_values: List[EnumValue]) -> str:
     return make_markdown_table(headers, rows)
 
 def format_event_type_enum_table(spec: ProgSnap2Spec) -> str:
-    headers, rows = get_enum_table(spec.main_table.event_types)
+    headers, rows = get_enum_table(spec.main_table.event_types, True)
     headers += ["Required Columns", "Optional Columns"]
     for i, _ in enumerate(rows):
         event_type = spec.main_table.event_types[i]
@@ -63,6 +66,9 @@ def format_event_type_linked_column(columns: list[str], spec: ProgSnap2Spec) -> 
 def render_description(description: str) -> str:
     return f"\n{description.strip()}" if description else ""
 
+def format_event_type_link(type: str) -> str:
+    return type.replace(".", "").lower()
+
 # --- Shared Renderer for Property, Column, and MetadataProperty ---
 def render_property(prop: Property, spec: ProgSnap2Spec) -> str:
     lines = [f"### {prop.name}"]
@@ -79,14 +85,14 @@ def render_property(prop: Property, spec: ProgSnap2Spec) -> str:
         if prop.requirement == Requirement.EventSpecific:
             required_events = [event for event in spec.main_table.event_types if event.is_column_required(prop.name)]
             if required_events:
-                lines.append("- *Required for these [EventTypes](#eventtype)*:")
+                lines.append("- *Required for*:")
                 for event in required_events:
-                    lines.append(f"    - {event.name}")
-            optional_events = [event for event in spec.main_table.event_types if event.is_column_specific_to_event(prop.name)]
+                    lines.append(f"    - [{event.name}](#{format_event_type_link(event.name)})")
+            optional_events = [event for event in spec.main_table.event_types if event.is_column_optional(prop.name)]
             if optional_events:
-                lines.append("- *Optional for these [EventTypes](#eventtype)*:")
+                lines.append("- *Optional for*:")
                 for event in optional_events:
-                    lines.append(f"    - {event.name}")
+                    lines.append(f"    - [{event.name}](#{format_event_type_link(event.name)})")
 
     if prop.datatype == PS2Datatype.Enum:
         lines.append(f"\n**{prop.name} Allowed Values**:\n")

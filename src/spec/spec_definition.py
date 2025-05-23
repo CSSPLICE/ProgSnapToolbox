@@ -51,12 +51,13 @@ class EventType(BaseModel):
     optional_columns: List[str] = None
 
     def is_column_specific_to_event(self, column_name: str) -> bool:
-        return (self.required_columns and column_name in self.required_columns) or \
-               (self.optional_columns and column_name in self.optional_columns)
+        return self.is_column_required(column_name) or self.is_column_optional(column_name)
 
     def is_column_required(self, column_name: str) -> bool:
         return self.required_columns and column_name in self.required_columns
 
+    def is_column_optional(self, column_name: str) -> bool:
+        return self.optional_columns and column_name in self.optional_columns
 
 class MainTable(BaseModel):
     columns: List[Column]
