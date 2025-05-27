@@ -18,7 +18,7 @@ if __name__ == "__main__":
         f.write(out)
 
     out = generate_ts_methods(schema)
-    print(out)
+    # print(out)
 
     # Connect to database
     # engine = create_engine("sqlite:///example.db", echo=True)

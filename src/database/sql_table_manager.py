@@ -1,5 +1,5 @@
 
-from database.config import PS2DatabaseConfig
+from database.config import PS2DataConfig
 from spec.enums import CodeStateRepresentation
 from spec.spec_definition import ProgSnap2Spec
 
@@ -16,7 +16,7 @@ from sqlalchemy.dialects.sqlite import DATETIME
 
 
 class SQLTableManager:
-    def __init__(self, spec: ProgSnap2Spec, db_config: PS2DatabaseConfig):
+    def __init__(self, spec: ProgSnap2Spec, db_config: PS2DataConfig):
         self.metadata_values = db_config.metadata
         self.spec = spec
         self.db_config = db_config

@@ -4,17 +4,16 @@ import os
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 from database.codestate.directory_codestate_writer import DirectoryCodeStateWriter
 from database.codestate.table_codestate_writer import TableCodeStateWriter
-from database.config import PS2CSVConfig, PS2DatabaseConfig, PS2DataConfig
 
 from sqlalchemy import Connection, create_engine
-from database.config import PS2DatabaseConfig, PS2DataConfig
+from database.config import PS2DataConfig
 from database.reader.csv_reader import CSVReader
 from database.reader.sql_reader import SQLReader
 from database.sql_context import IOContext
 from database.sql_table_manager import SQLTableManager
 from database.writer.sql_writer import SQLContext, SQLWriter
 from spec.enums import CodeStateRepresentation
-from spec.spec_definition import ProgSnap2Spec
+from spec.spec_definition import PS2Versions, ProgSnap2Spec
 
 # TODO: Rename this file
 
@@ -31,10 +30,11 @@ class IOFactory(ABC):
     def create_reader(self):
         pass
 
-    def _create_codestate_writer(self, db_config: PS2DatabaseConfig, context: SQLContext):
+    def _create_codestate_writer(self, db_config: PS2DataConfig, context: SQLContext):
         # TODO: These aren't actually the same enum right now... so need to str convert
         code_state_representation = str(self.db_config.metadata.CodeStateRepresentation)
         if code_state_representation == CodeStateRepresentation.Table:
+            # TODO: This should actually be split into two: one for CSV and one for SQL
             return TableCodeStateWriter(context)
         elif code_state_representation == CodeStateRepresentation.Directory:
             raise DirectoryCodeStateWriter(db_config.codestates_dir)
@@ -44,14 +44,19 @@ class IOFactory(ABC):
             raise ValueError(f"Invalid code state representation: {code_state_representation}")
 
     @classmethod
-    def create_factory(cls, ps2_spec: ProgSnap2Spec, db_config: PS2DataConfig) -> "IOFactory":
-        if isinstance(db_config, PS2DatabaseConfig):
+    def create_factory(cls, db_config: PS2DataConfig, ps2_spec = None) -> "IOFactory":
+        if ps2_spec is None:
+            version = db_config.metadata.Version
+            if version is None:
+                ps2_spec = PS2Versions.load_default()
+                print("Warning: No PS2 version specified in metadata, using default version.")
+            else:
+                ps2_spec = PS2Versions.load_from_string(version)
+        if db_config.is_sql_config:
             return SQLIOFactory(ps2_spec, db_config)
-        elif isinstance(db_config, PS2CSVConfig):
-            # CSV Writer would be reasonable in a log translation context
-            # But really what's the advantage? I think we should only
-            # support SQL writing, but support SQL + CSV reading.
-            raise NotImplementedError("CSV writer not implemented yet")
+        elif db_config.is_csv_config:
+            return CSVIOFactory(ps2_spec, db_config)
+        raise ValueError(f"Unsupported database configuration type")
 
 
 class SQLIOFactory(IOFactory):
@@ -101,7 +106,7 @@ class CSVIOFactory(IOFactory):
         raise NotImplementedError("CSV writer not implemented.")
 
     def create_reader(self):
-        return CSVIOContextManager(self, True)
+        return CSVIOContextManager(self)
 
 class CSVIOContextManager:
 

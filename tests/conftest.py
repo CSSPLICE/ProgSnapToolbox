@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 from api.events import DataModelGenerator
-from spec.spec_definition import ProgSnap2Spec
+from spec.spec_definition import ProgSnap2Spec, PS2Versions
 
 @dataclass
 class SpecConfig:
@@ -11,8 +11,7 @@ class SpecConfig:
 
 @pytest.fixture(scope="session")
 def config():
-    spec_path = "src/spec/progsnap2.yaml"
-    spec = ProgSnap2Spec.from_yaml(spec_path)
+    spec = PS2Versions.v1_0.load()
     data_model_gen = DataModelGenerator(spec)
     MainTableEvent = data_model_gen.MainTableEvent
 

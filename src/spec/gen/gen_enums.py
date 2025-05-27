@@ -54,6 +54,8 @@ def generate_enum(enum_name: str, enum_values: list[str], doc: str = None, docs:
         enum_str += f"    {key} = '{value}'\n"
         if value_doc:
             enum_str += format_docstring(value_doc, "    ")
+    enum_str += "    def __str__(self):\n"
+    enum_str += "        return self.value\n"
     return enum_str
 
 

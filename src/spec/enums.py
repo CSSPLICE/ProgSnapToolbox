@@ -5,6 +5,8 @@ class CoreTables(str, Enum):
     MainTable = 'MainTable'
     Metadata = 'Metadata'
     CodeStates = 'CodeStates'
+    def __str__(self):
+        return self.value
 
 
 class CodeStatesTableColumns(str, Enum):
@@ -12,6 +14,8 @@ class CodeStatesTableColumns(str, Enum):
     CodeStateID = 'CodeStateID'
     Code = 'Code'
     CodeStateSection = 'CodeStateSection'
+    def __str__(self):
+        return self.value
 
 
 class MetadataProperties(str, Enum):
@@ -45,6 +49,8 @@ class MetadataProperties(str, Enum):
     This property specifies the name of the LinkTable that contains columns describing program input, if these are contained in a separate table rather than as columns in the MainTable. If they are included in the MainTable, this value should be the empty string.
     """
 
+    def __str__(self):
+        return self.value
 
 
 class MainTableColumns(str, Enum):
@@ -322,6 +328,8 @@ class MainTableColumns(str, Enum):
     The actual intervention message shown to the student, when applicable. If no message is shown but a visual effect occurs, the effect should be described (possibly using a dataset-specific coding scheme).
     """
 
+    def __str__(self):
+        return self.value
 
 
 class EventType(str, Enum):
@@ -372,6 +380,8 @@ class EventType(str, Enum):
     """Indicates that a resource (typically a learning resource of some type) was viewed."""
     Intervention = 'Intervention'
     """Indicates that an intervention such as a hint was done."""
+    def __str__(self):
+        return self.value
 
 
 class LinkTableNames(str, Enum):
@@ -381,11 +391,15 @@ class LinkTableNames(str, Enum):
     A link table with additional information about each student.
     """
 
+    def __str__(self):
+        return self.value
 
 
 class LinkSubjectColumns(str, Enum):
     SubjectID = 'SubjectID'
     MidtermExamScore = 'MidtermExamScore'
+    def __str__(self):
+        return self.value
 
 
 class CodeStateRepresentation(str, Enum):
@@ -395,6 +409,8 @@ class CodeStateRepresentation(str, Enum):
     """CodeStates will be stored in individual folders, with each folder containing all code files, organized by SubjectID."""
     Git = 'Git'
     """CodeStates will be stored in Git repositories, with commit hashes used as CodeStateIDs, organized by SubjectID and ProjectID."""
+    def __str__(self):
+        return self.value
 
 
 class EventInitiator(str, Enum):
@@ -414,6 +430,8 @@ class EventInitiator(str, Enum):
     """Indicates that a team member directly caused the event; for example, if two students are pair-programming on a shared screen."""
     TeamMemberIndirectAction = 'TeamMemberIndirectAction'
     """Indicates that a team member indirectly caused the event; for example, if two students are pair-programming on a shared screen."""
+    def __str__(self):
+        return self.value
 
 
 class EventOrderScope(str, Enum):
@@ -423,6 +441,8 @@ class EventOrderScope(str, Enum):
     """Indicates that the Order column values are only comparable between events with identical values for all of the columns specified by the EventOrderScopeColumns property"""
     None_ = 'None'
     """Indicates that the Order column values should never be assumed to determine an ordering for any events; in other words, the events are not ordered."""
+    def __str__(self):
+        return self.value
 
 
 class EditType(str, Enum):
@@ -446,12 +466,16 @@ class EditType(str, Enum):
     """Indicates that the program has been reset to its start state."""
     GenericEdit = 'GenericEdit'
     """Any generic edit that can not be described by the edits listed above. If your dataset contains a new category of edits not defined here, we recommend defining a custom value for this enumeration, rather than using GenericEdit."""
+    def __str__(self):
+        return self.value
 
 
 class CompileResult(str, Enum):
     Success = 'Success'
     Warning = 'Warning'
     Error = 'Error'
+    def __str__(self):
+        return self.value
 
 
 class ExecutionResult(str, Enum):
@@ -459,6 +483,8 @@ class ExecutionResult(str, Enum):
     Timeout = 'Timeout'
     Error = 'Error'
     TestFailed = 'TestFailed'
+    def __str__(self):
+        return self.value
 
 
 class InterventionCategory(str, Enum):
@@ -467,3 +493,5 @@ class InterventionCategory(str, Enum):
     CodeHighlight = 'CodeHighlight'
     CodeChange = 'CodeChange'
     EarnedGrade = 'EarnedGrade'
+    def __str__(self):
+        return self.value

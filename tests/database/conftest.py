@@ -2,7 +2,7 @@
 import os
 import pytest
 
-from database.config import PS2DatabaseConfig
+from database.config import PS2DataConfig
 from database.writer.db_writer_factory import SQLIOFactory
 from spec.spec_definition import PS2Versions, ProgSnap2Spec
 
@@ -19,9 +19,9 @@ def ps2_spec() -> ProgSnap2Spec:
     return spec
 
 @pytest.fixture(scope="session")
-def sqlite_config(ps2_spec) -> PS2DatabaseConfig:
+def sqlite_config(ps2_spec) -> PS2DataConfig:
     data_config = os.path.join(current_dir, "sqlite_config.yaml")
-    return PS2DatabaseConfig.from_yaml(data_config, ps2_spec)
+    return PS2DataConfig.from_yaml(data_config, ps2_spec)
 
 
 @pytest.fixture(scope="session")
