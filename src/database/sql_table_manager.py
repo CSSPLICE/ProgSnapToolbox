@@ -128,14 +128,20 @@ class SQLTableManager:
             self.link_tables[link_table.name] = tbl
 
         if self.metadata_values.CodeStateRepresentation == CodeStateRepresentation.Table:
-
-            self.codestates_table = Table(
-                CoreTables.CodeStates, metadata,
-                SQLColumn(CodeCols.CodeStateID, id_datatype),
-                SQLColumn(CodeCols.CodeStateSection, path_datatype, nullable=True),
+            cols_etc = [
+                SQLColumn(CodeCols.CodeStateID, id_datatype, nullable=False),
+            ]
+            if self.db_config.codestates_have_sections:
+                cols_etc.append(SQLColumn(CodeCols.CodeStateSection, path_datatype, nullable=True))
+            cols_etc.extend([
                 SQLColumn(CodeCols.Code, Text(), nullable=False),
                 UniqueConstraint(CodeCols.CodeStateID, CodeCols.CodeStateSection, name="uq_codestate_id_section"),
                 Index("ix_codestate_id", CodeCols.CodeStateID),
+            ])
+
+            self.codestates_table = Table(
+                CoreTables.CodeStates, metadata,
+                *cols_etc
             )
 
     def create_tables(self, conn: Connection):

@@ -14,6 +14,9 @@ def create_metadata_values_model(metadata_spec: Metadata) -> type[BaseModel]:
     return create_model("MetadataValues", **fields)
 
 class PS2DataConfig(BaseModel):
+    # TODO: Should this be relative to this file? Or to the running script...
+    # Or should the root folder be provided in code (which knows the relative path)
+    # and then this can exist anywhere... or could be always in the dataset folder?
     root_path: str
     """The root directory of the PrgoSnap2 dataset."""
 
@@ -28,8 +31,13 @@ class PS2DataConfig(BaseModel):
     unique. If false, the provided CodeStateIDs are used directly.
     """
 
+    codestates_have_sections: bool = True
+
     # Config for CSV format
-    csv_path: str = None
+    main_table_file: str = None
+    """Relative path to the main table CSV file."""
+    codestates_table_relative_path: str = "CodeStates.csv"
+    """Relative path to the CodeStates table CSV file."""
 
     # Config for SQL/SQLite format
     sqlalchemy_url: str = None
@@ -43,14 +51,24 @@ class PS2DataConfig(BaseModel):
 
     @property
     def is_csv_config(self) -> bool:
-        return self.csv_path is not None
+        return self.main_table_file is not None
+
+    @property
+    def codestates_table_path(self) -> str:
+        return os.path.join(self.root_path, self.codestates_table_relative_path)
+
+    @property
+    def main_table_path(self) -> str:
+        if self.is_csv_config:
+            return os.path.join(self.root_path, self.main_table_file)
+        raise ValueError("Main table path is only available for CSV configurations.")
 
     @model_validator(mode="after")
     def validate_has_path_or_url(cls, values):
-        if not values.csv_path and not values.sqlalchemy_url:
-            raise ValueError("Either csv_path or sqlalchemy_url must be provided.")
-        if values.csv_path and values.sqlalchemy_url:
-            raise ValueError("Only one of csv_path or sqlalchemy_url can be provided.")
+        if not values.main_table_file and not values.sqlalchemy_url:
+            raise ValueError("Either main_table_file or sqlalchemy_url must be provided.")
+        if values.main_table_file and values.sqlalchemy_url:
+            raise ValueError("Only one of main_table_file or sqlalchemy_url can be provided.")
         return values
 
     @property

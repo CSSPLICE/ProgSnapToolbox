@@ -42,6 +42,9 @@ class ContextualCodeStateEntry(CodeStateEntry):
 class CodeStateWriter(ABC):
 
     def get_codestate_id_from_hash(self, codestate: ContextualCodeStateEntry) -> str:
+        if codestate.is_blank:
+            raise ValueError("Cannot generate ID for a blank CodeState. ID should be ''.")
+
         sections = codestate.sections
         # Sort sections to ensure consistent ID generation
         sections = sorted(sections, key=lambda x: x.CodeStateSection or "")

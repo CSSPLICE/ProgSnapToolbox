@@ -1,5 +1,5 @@
 
-from turtle import pd
+import pandas as pd
 from pandas import DataFrame
 from database.reader.ps2_reader import PS2Reader
 from spec.codestate import CodeStateEntry

@@ -1,0 +1,11 @@
+root_path: ./test_data/
+main_table_file: MainTable.csv
+optimize_codestate_ids: true
+
+metadata:
+  Version: "1.0"
+  IsEventOrderingConsistent: true
+  EventOrderScope: Restricted
+  EventOrderScopeColumns: SessionID
+  CodeStateRepresentation: Table
+  ProgramInputLinkTable: ""

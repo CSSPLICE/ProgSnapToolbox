@@ -33,6 +33,7 @@ class CodestateGenerator():
 gen = CodestateGenerator()
 gen_no_grouping = CodestateGenerator(False)
 
+# TODO: Test SQLTableCodeStateWriter!
 
 def test_directory_codestate_writer():
     # Initialize the DirectoryTableWriter
@@ -77,5 +78,41 @@ def do_test_git_codestate_writer(with_subject_id):
     assert codestate_id_2 != codestate_id_1, "Different codestates should return different IDs"
 
 
+def test_csv_table_codestate_writer(csv_config):
+    from database.codestate.table_codestate_writer import CSVTableCodeStateWriter
+    from database.sql_context import IOContext
 
+    # Initialize the DirectoryTableWriter
+    writer = CSVTableCodeStateWriter(csv_config)
 
+    # Add the codestate and get its ID
+    codestate_id_1 = writer.add_codestate_and_get_id(gen.codestate1)
+
+    # Check if the CSV file was created
+    assert os.path.exists(csv_config.codestates_table_path)
+
+    codestate_id_1_again = writer.add_codestate_and_get_id(gen.codestate1)
+    assert codestate_id_1_again == codestate_id_1, "Duplicate codestate should return the same ID"
+
+    codestate_id_2 = writer.add_codestate_and_get_id(gen.codestate2)
+    assert codestate_id_2 != codestate_id_1, "Different codestates should return different IDs"
+
+    # The CSV file should have 4 non-header lines (2 sections * 2 codestates)
+    # The CodeState columns should match the expected values
+    import csv
+    rows = []
+    with open(csv_config.codestates_table_path, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            rows.append(row)
+    assert len(rows) == 4, "CSV file should have 4 rows (2 codestates * 2 sections)"
+
+    # Check the first codestate
+    assert rows[0]['CodeStateID'] == codestate_id_1
+    assert rows[0]['Code'] == gen.codestate1.sections[0].Code
+    assert rows[0]['CodeStateSection'] == gen.codestate1.sections[0].CodeStateSection
+
+    # Check the second codestate
+    assert rows[2]['CodeStateID'] == codestate_id_2
+    assert rows[2]['Code'] == gen.codestate2.sections[0].Code
+    assert rows[2]['CodeStateSection'] == gen.codestate2.sections[0].CodeStateSection

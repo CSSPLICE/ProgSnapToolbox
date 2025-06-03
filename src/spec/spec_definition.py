@@ -156,7 +156,6 @@ class PS2Versions(Enum):
     @classmethod
     def load_from_string(cls, version_str: str) -> ProgSnap2Spec:
         for version in cls:
-            print (f"Checking version: {version.value.name} against {version_str}")
             if version.value.name.lower() == version_str.lower().strip():
                 return version.value.load()
         raise ValueError(f"Version '{version_str}' not found in PS2Versions")

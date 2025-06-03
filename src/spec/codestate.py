@@ -10,6 +10,8 @@ class CodeStateSectionEntry(BaseModel):
     Code: str
     CodeStateSection: str = None
 
+BLANK_CODESTATE_ID = ""
+
 class CodeStateEntry(BaseModel):
     """
     A class representing the state of a whole project at a given time.

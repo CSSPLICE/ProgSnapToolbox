@@ -3,6 +3,7 @@ from sqlalchemy import insert
 from database.codestate.codestate_writer import CodeStateEntry, CodeStateWriter, ContextualCodeStateEntry
 from database.writer.db_writer import DBWriter, LogResult
 from database.sql_context import SQLContext
+from spec.codestate import BLANK_CODESTATE_ID
 from spec.datatypes import get_current_timestamp
 from spec.enums import MainTableColumns as Cols
 
@@ -98,7 +99,10 @@ class SQLWriter(DBWriter):
     def _optimize_codestate_ids(self, events: EventList, codestates: CodeStatesMap, result: LogResult) -> None:
         temp_codestate_id_map = {}
         for temp_id, codestate in codestates.items():
-            code_state_id = self.codestate_writer.add_codestate_and_get_id(codestate)
+            if codestate.is_blank:
+                code_state_id = BLANK_CODESTATE_ID
+            else:
+                code_state_id = self.codestate_writer.add_codestate_and_get_id(codestate)
             temp_codestate_id_map[temp_id] = code_state_id
 
         for event in events:

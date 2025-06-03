@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import os
 from database.codestate.git_codestate_writer import GitCodeStateWriter
 from database.codestate.directory_codestate_writer import DirectoryCodeStateWriter
-from database.codestate.table_codestate_writer import TableCodeStateWriter
+from database.codestate.table_codestate_writer import CSVTableCodeStateWriter, SQLTableCodeStateWriter
 
 from sqlalchemy import Connection, create_engine
 from database.config import PS2DataConfig
@@ -34,8 +34,10 @@ class IOFactory(ABC):
         # TODO: These aren't actually the same enum right now... so need to str convert
         code_state_representation = str(self.db_config.metadata.CodeStateRepresentation)
         if code_state_representation == CodeStateRepresentation.Table:
-            # TODO: This should actually be split into two: one for CSV and one for SQL
-            return TableCodeStateWriter(context)
+            if db_config.is_csv_config:
+                return CSVTableCodeStateWriter(db_config)
+            else:
+                return SQLTableCodeStateWriter(context)
         elif code_state_representation == CodeStateRepresentation.Directory:
             raise DirectoryCodeStateWriter(db_config.codestates_dir)
         elif code_state_representation == CodeStateRepresentation.Git:
@@ -118,7 +120,7 @@ class CSVIOContextManager:
             data_config=self.factory.db_config,
             ps2_spec=self.factory.ps2_spec
         )
-        codestate_io = self.factory._create_codestate_writer(self.factory.db_config, context)
+        codestate_io = self.factory._create_codestate_writer(self.factory.db_config, None)
         return CSVReader(context, codestate_io)
 
     def __exit__(self, exc_type, exc_val, exc_tb):

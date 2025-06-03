@@ -23,6 +23,11 @@ def sqlite_config(ps2_spec) -> PS2DataConfig:
     data_config = os.path.join(current_dir, "sqlite_config.yaml")
     return PS2DataConfig.from_yaml(data_config, ps2_spec)
 
+@pytest.fixture(scope="session")
+def csv_config(ps2_spec) -> PS2DataConfig:
+    data_config = os.path.join(current_dir, "csv_config.yaml")
+    return PS2DataConfig.from_yaml(data_config, ps2_spec)
+
 
 @pytest.fixture(scope="session")
 def sqlite_writer_factory(ps2_spec, sqlite_config):

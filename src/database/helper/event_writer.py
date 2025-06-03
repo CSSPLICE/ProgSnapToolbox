@@ -68,4 +68,5 @@ class EventWriterBase():
         result.warnings.extend(warnings)
         return result
 
+    # TODO: When you add codestate support, make sure to support blank codestates too
 
