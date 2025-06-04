@@ -31,6 +31,7 @@ class PS2DataConfig(BaseModel):
     unique. If false, the provided CodeStateIDs are used directly.
     """
 
+    # TODO: Nor does this
     codestates_have_sections: bool = True
 
     # Config for CSV format

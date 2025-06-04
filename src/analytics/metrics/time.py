@@ -92,4 +92,4 @@ class TimeMetrics:
             self.START_TIME: start_time,
             self.FIRST_CORRECT_TIME: first_correct_time
         }
-        return time_metrics
+        return Series(time_metrics)

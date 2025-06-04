@@ -43,6 +43,12 @@ class Metadata(BaseModel):
     description: str = None
     properties: List[MetadataProperty]
 
+    def get_property(self, property_name: str) -> Optional[MetadataProperty]:
+        for prop in self.properties:
+            if prop.name == property_name:
+                return prop
+        return None
+
 
 class EventType(BaseModel):
     name: str

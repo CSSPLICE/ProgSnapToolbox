@@ -2,8 +2,16 @@ from datetime import datetime
 from typing import Optional
 from enum import Enum
 
-TIMESTAMP_FORMAT_WITH_TIMEZONE    = "%Y-%m-%dT%H:%M:%S.%f%z"
-TIMESTAMP_FORMAT_WITHOUT_TIMEZONE = "%Y-%m-%dT%H:%M:%S.%f"
+BASE_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
+TIMEZONE_FORMAT = "%z"
+FRACTIONAL_SECONDS_FORMAT = ".%f"
+DEFAULT_TIMESTAMP_FORMAT = BASE_TIMESTAMP_FORMAT + FRACTIONAL_SECONDS_FORMAT + TIMEZONE_FORMAT
+TIMESTAMP_FORMATS = [
+    BASE_TIMESTAMP_FORMAT,
+    DEFAULT_TIMESTAMP_FORMAT,
+    BASE_TIMESTAMP_FORMAT + TIMEZONE_FORMAT,
+    BASE_TIMESTAMP_FORMAT + FRACTIONAL_SECONDS_FORMAT,
+]
 
 def get_current_timestamp(time = None) -> str:
     """
@@ -11,27 +19,39 @@ def get_current_timestamp(time = None) -> str:
     """
     if not time:
         time = datetime.now()
-    return time.astimezone().strftime(TIMESTAMP_FORMAT_WITH_TIMEZONE)
+    return time.astimezone().strftime(DEFAULT_TIMESTAMP_FORMAT)
 
 def parse_timestamp(timestamp: str) -> datetime:
     """
     Parse a timestamp string. Throws an exception if the format is not valid.
     """
-    for format in (TIMESTAMP_FORMAT_WITH_TIMEZONE, TIMESTAMP_FORMAT_WITHOUT_TIMEZONE):
+    for format in TIMESTAMP_FORMATS:
         try:
             return datetime.strptime(timestamp, format)
         except ValueError:
             continue
     raise ValueError(f"Invalid timestamp format: {timestamp}. \
-                     Expected formats: \
-                     {TIMESTAMP_FORMAT_WITH_TIMEZONE}, {TIMESTAMP_FORMAT_WITHOUT_TIMEZONE}")
+                     Expected base format {BASE_TIMESTAMP_FORMAT} with optional fractional seconds and/or timezone.")
 
 def timestamp_has_timezone(timestamp: str) -> bool:
     """
     Check if a timestamp string has a timezone.
     """
+    timestamp_formats = [fomat for fomat in TIMESTAMP_FORMATS if TIMEZONE_FORMAT in fomat]
+    for format in timestamp_formats:
+        try:
+            datetime.strptime(timestamp, format)
+            return True
+        except ValueError:
+            continue
+    return False
+
+def is_valid_timezone_offset(timezone: str) -> bool:
+    """
+    Check if a timezone string is a valid offset.
+    """
     try:
-        datetime.strptime(timestamp, TIMESTAMP_FORMAT_WITH_TIMEZONE)
+        datetime.strptime(timezone, TIMEZONE_FORMAT)
         return True
     except ValueError:
         return False
