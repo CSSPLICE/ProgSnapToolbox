@@ -3,3 +3,5 @@ jupyter
 uvicorn
 pytest
 pip-tools
+matplotlib
+seaborn
