@@ -83,6 +83,10 @@ class TimeMetrics:
             time_series_after_correct = time_series.iloc[after_correct_loc:]
 
         delta_seconds = time_series_until_correct.diff().dt.total_seconds()
+        negative_deltas = delta_seconds < 0
+        if negative_deltas.any():
+            print("Warning: Negative time deltas found. This may indicate incorrect timestamps or data sorting issues.")
+            delta_seconds = delta_seconds[~negative_deltas]  # Remove negative deltas
         n_breaks = (delta_seconds > self.break_gap).sum()
         non_break_seconds = delta_seconds[delta_seconds <= self.break_gap]
         idle_time = non_break_seconds[non_break_seconds > self.idle_gap].sum()
@@ -106,6 +110,31 @@ class TimeMetrics:
             self.END_TIME: time_series.iloc[-1],
         }
         return Series(time_metrics)
+
+    @staticmethod
+    def get_all_diffs(ungrouped_rows: DataFrame, time_col: str, grouping_cols: list[str]) -> DataFrame:
+        """
+        Get all time differences for the given rows in seconds.
+        Differences are calculated within each group defined by the grouping columns,
+        e.g. within one SubjectID working on one ProblemID.
+        These values should be used to set the idle_gap and break_gap
+        parameters for the TimeMetrics class.
+        """
+        df = ungrouped_rows.sort_values(by=grouping_cols + [time_col])[grouping_cols]
+        df["DeltaSeconds"] = ungrouped_rows.groupby(grouping_cols)[time_col].diff().apply(lambda x: x.total_seconds())
+
+        return df
+
+    @staticmethod
+    def get_positive_diff_quantiles(ungrouped_rows: DataFrame, time_col: str, grouping_cols: list[str]):
+        """
+        Get the quantiles of positive time differences for the given rows in seconds.
+        See get_all_diffs for more details.
+        """
+        df = TimeMetrics.get_all_diffs(ungrouped_rows, time_col, grouping_cols)
+        df = df[df["DeltaSeconds"] > 0]  # Filter out non-positive deltas
+        quantiles = np.array([0, 25, 50, 75, 80, 85, 90, 95, 96, 97, 98, 99, 100])
+        return df["DeltaSeconds"].quantile(quantiles / 100)
 
     def test_calculation(self, ungrouped_rows: DataFrame, grouping_cols: list[str], n = 5) -> Series:
         """
