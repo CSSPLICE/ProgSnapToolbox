@@ -3,6 +3,7 @@ from typing import Final
 from pandas import DataFrame, Series
 from analytics.metrics.metric import LambdaMetric
 from spec.enums import MainTableColumns as Cols
+import numpy as np
 
 
 class TimeMetrics:
@@ -43,6 +44,12 @@ class TimeMetrics:
     The time of the first correct attempt for a problem.
     """
 
+    END_TIME: Final[str] = "EndTime"
+    """
+    The time of the last log entry for a problem.
+    It is often more useful to use FIRST_CORRECT_TIME.
+    """
+
 
     def __init__(self, idle_gap, break_gap, is_data_already_time_sorted, time_col: str = Cols.ClientTimestamp):
         self.idle_gap = idle_gap
@@ -62,13 +69,18 @@ class TimeMetrics:
         time_series_until_correct = time_series
         time_series_after_correct = None
         correct_rows = rows[rows[Cols.Score] >= 1]
+
+        is_correct = (rows[Cols.Score] >= 1).to_numpy()
+        correct_indices = np.where(is_correct)[0]
+
         first_correct_time = None
-        if len(correct_rows) > 0:
-            first_correct_loc = correct_rows.index.get_loc(correct_rows.index[0])
+        if correct_indices.size > 0:
+            first_correct_loc = correct_indices[0]
             first_correct_time = time_series.iloc[first_correct_loc]
-            first_correct_loc += 1 # Offset by 1 to include the first correct attempt
-            time_series_until_correct = time_series.iloc[:first_correct_loc]
-            time_series_after_correct = time_series.iloc[first_correct_loc:]
+             # Offset by 1 to include the first correct attempt
+            after_correct_loc = first_correct_loc + 1
+            time_series_until_correct = time_series.iloc[:after_correct_loc]
+            time_series_after_correct = time_series.iloc[after_correct_loc:]
 
         delta_seconds = time_series_until_correct.diff().dt.total_seconds()
         n_breaks = (delta_seconds > self.break_gap).sum()
@@ -90,6 +102,36 @@ class TimeMetrics:
             self.ACTIVE_TIME_AFTER_CORRECT: active_time_after_correct,
             self.N_BREAKS: n_breaks,
             self.START_TIME: start_time,
-            self.FIRST_CORRECT_TIME: first_correct_time
+            self.FIRST_CORRECT_TIME: first_correct_time,
+            self.END_TIME: time_series.iloc[-1],
         }
         return Series(time_metrics)
+
+    def test_calculation(self, ungrouped_rows: DataFrame, grouping_cols: list[str], n = 5) -> Series:
+        """
+        Test the calculation on the first n groups based on the grouping columns.
+        This is useful for debugging and verifying the calculation logic.
+        """
+
+        if not grouping_cols:
+            raise ValueError("Grouping columns must be provided for testing.")
+
+        grouped = ungrouped_rows.groupby(grouping_cols)
+
+        results = []
+
+        cols = None
+        # Iterate and apply function only to the first `n` groups
+        for i, (name, group) in enumerate(grouped):
+            if i >= n:
+                break
+            # Apply your function here (e.g., sum of 'value')
+            result = self.calculate(group)
+            cols = result.index if cols is None else cols
+            result = result.to_dict()
+            result['Group'] = name
+            results.append(result)
+
+        # Convert to DataFrame or Series if needed
+        result_df = DataFrame(results)
+        return result_df
