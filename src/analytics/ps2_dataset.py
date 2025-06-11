@@ -5,6 +5,7 @@
 
 from abc import ABC, abstractmethod
 from pandas import DataFrame
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from database.config import PS2DataConfig
 from database.writer.db_writer_factory import IOFactory
 from spec.enums import MainTableColumns as Cols, MetadataProperties as MetadataProps, EventOrderScope
@@ -123,6 +124,11 @@ class TimePreprocessor(Preprocessor):
 
     def _convert_time_columm(self, main_table: DataFrame, time_column_name: str, timezone_column_name: str) -> None:
         if not time_column_name in main_table.columns:
+            return
+
+
+        if is_datetime(main_table[time_column_name]):
+            # If the column is already in datetime format, no conversion needed
             return
 
         timestamp_strings = main_table[time_column_name]

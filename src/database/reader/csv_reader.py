@@ -20,7 +20,7 @@ class CSVReader(PS2Reader):
         return pd.read_csv(path)
 
     def get_main_table(self) -> DataFrame:
-        path = os.path.join(self.data_config.root_path, "MainTable.csv")
+        path = os.path.join(self.data_config.main_table_path)
         return self._get_table(path)
 
     def add_codestate(self, codestate_id: str, subject_id: str, project_id: str) -> CodeStateEntry:

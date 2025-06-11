@@ -68,10 +68,11 @@ class TimeMetrics:
 
         time_series_until_correct = time_series
         time_series_after_correct = None
-        correct_rows = rows[rows[Cols.Score] >= 1]
 
-        is_correct = (rows[Cols.Score] >= 1).to_numpy()
-        correct_indices = np.where(is_correct)[0]
+        correct_indices = np.array([])
+        if Cols.Score in rows.columns:
+            is_correct = (rows[Cols.Score] >= 1).to_numpy()
+            correct_indices = np.where(is_correct)[0]
 
         first_correct_time = None
         if correct_indices.size > 0:
