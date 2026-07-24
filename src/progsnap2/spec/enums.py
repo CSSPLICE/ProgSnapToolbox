@@ -206,6 +206,11 @@ class MainTableColumns(str, Enum):
     Also note that CodeStateSections should not be used for CodeStates in the Table format, as all table data is contained in the same file.
     """
 
+    CopiedText = 'CopiedText'
+    """
+    The text copied to the clipboard from a code editor.
+    """
+
     DestinationCodeStateSection = 'DestinationCodeStateSection'
     """
     For events associated with two files or resources — a "source" and a "destination" — the DestinationCodeStateSection value specifies the destination resource.  For example, for File.Copy and File.Rename events, the DestinationCodeStateSection value specifies the "new" file or resource.
@@ -338,6 +343,11 @@ class MainTableColumns(str, Enum):
     The text deleted by this File.Delete event, if any.
     """
 
+    DeleteLength = 'DeleteLength'
+    """
+    The length of the text deleted by this File.Delete event, if any. Can be used in place of DeleteText.
+    """
+
     def __str__(self):
         return self.value
 
@@ -367,9 +377,15 @@ class EventType(str, Enum):
     FileCopy = 'File.Copy'
     """Indicates that a file was copied."""
     FileEdit = 'File.Edit'
-    """Indicates that the contents of a file were edited."""
+    """Indicates that the contents of a file were edited. If a ParentEventID is provided, this indicates that multiple edits took place in the same action."""
     FileFocus = 'File.Focus'
     """Indicates that a file was selected by the user within the user interface."""
+    FileCopyText = 'File.CopyText'
+    """
+    Indicates that the user has copied the CopiedText from an open code document to the clipboard. Optionally includes the document (CodeStateSection) and file location (SourceLocation) from which the text was copied.
+    Note that for privacy reasons this even should **not** fire when a user copies text outside of the code editor, as this could contain personal information. However, if extern text is pasted into an editor, this can be indicated by setting EditType attribute to Paste.
+    """
+
     Compile = 'Compile'
     """Indicates an attempt to compile all or part of the code."""
     CompileError = 'Compile.Error'
@@ -396,18 +412,6 @@ class EventType(str, Enum):
 
 class LinkTableNames(str, Enum):
     """Defined LinkTables"""
-    LinkSubject = 'linksubject'
-    """
-    A link table with additional information about each student.
-    """
-
-    def __str__(self):
-        return self.value
-
-
-class LinkSubjectColumns(str, Enum):
-    SubjectID = 'SubjectID'
-    MidtermExamScore = 'MidtermExamScore'
     def __str__(self):
         return self.value
 
@@ -420,7 +424,7 @@ class CodeStateRepresentation(str, Enum):
     Git = 'Git'
     """CodeStates will be stored in Git repositories, with commit hashes used as CodeStateIDs, organized by SubjectID and ProjectID."""
     Keystroke = 'Keystroke'
-    """Rather than directly storing Codestates, the MainTable will contain InsertText and DeleteText columns tracking keystroke-level insertions and deletions, from which CodeStates can be reconstructed."""
+    """Rather than directly storing Codestates, the MainTable will contain InsertText and DeleteText/DeleteLength columns tracking keystroke-level insertions and deletions, from which CodeStates can be reconstructed."""
     def __str__(self):
         return self.value
 
