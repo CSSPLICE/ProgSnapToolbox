@@ -19,12 +19,21 @@ from sqlalchemy import Text, String, Integer, Float, Boolean
 
 class SQLTableManager(ABC):
 
-    def __init__(self, metadata: MetaData):
+    def __init__(self, metadata: MetaData, make_lc: bool = True):
         self._metadata = metadata
         self.table_names = self._metadata.tables.keys()
+        self.make_lc = make_lc
+
+    def norm_table_name(self, table_name: str) -> str:
+        """
+        Normalize table names to lower case for consistency.
+        """
+        if self.make_lc:
+            return table_name.lower()
+        return table_name
 
     def get_table(self, table_name: str) -> Table:
-        table_name = table_name.lower()
+        table_name = self.norm_table_name(table_name)
         if table_name not in self.table_names:
             raise ValueError(f"Table {table_name} does not exist in the database.")
         return self._metadata.tables[table_name]
@@ -33,7 +42,10 @@ class SQLReaderTableManager(SQLTableManager):
     def __init__(self, engine: Engine):
         metadata = MetaData()
         metadata.reflect(bind=engine)
-        super().__init__(metadata)
+        requires_normalization = getattr(
+            engine.dialect, "requires_name_normalize", False
+        )
+        super().__init__(metadata, make_lc=requires_normalization)
         self.engine = engine
 
 
@@ -46,9 +58,10 @@ class SQLWriterTableManager(SQLTableManager):
         self.link_tables: dict[str, Table] = {}
         self.metadata_table: Table = None
         self.codestates_table: Table = None
+        is_sqlite = db_config.sqlalchemy_url.lower().startswith("sqlite://")
 
         metadata = self._create_metadata()
-        super().__init__(metadata)
+        super().__init__(metadata, make_lc=not is_sqlite)
 
     def has_codestates_table(self) -> bool:
         """
@@ -132,8 +145,8 @@ class SQLWriterTableManager(SQLTableManager):
         # --- Main Table ---
         main_columns = []
 
-        main_table_column_names = [col.name.lower() for col in spec.main_table.columns]
-        indexed_column_names = [col.lower() for col in self.db_config.indexed_columns]
+        main_table_column_names = [self.norm_table_name(col.name) for col in spec.main_table.columns]
+        indexed_column_names = [self.norm_table_name(col) for col in self.db_config.indexed_columns]
         for col in indexed_column_names:
             if col not in main_table_column_names:
                 raise ValueError(f"Indexed column {col} not found in main table columns.")
@@ -150,6 +163,7 @@ class SQLWriterTableManager(SQLTableManager):
         path_datatype = self.map_datatype(PS2Datatype.RelativePath)
 
         for link_table in spec.link_tables:
+            link_table_name = self.norm_table_name(link_table.name)
             link_table_name_lc = link_table.name.lower()
             columns = []
             # ID columns
@@ -162,10 +176,10 @@ class SQLWriterTableManager(SQLTableManager):
                 columns.append(UniqueConstraint(*uq_cols, name=f"uq_{link_table_name_lc}_{'_'.join(uq_cols)}"))
 
             tbl = Table(
-                link_table_name_lc, metadata,
+                link_table_name, metadata,
                 *columns
             )
-            self.link_tables[link_table_name_lc] = tbl
+            self.link_tables[link_table_name] = tbl
 
         if self.metadata_values.CodeStateRepresentation == CodeStateRepresentation.Table:
             cols_etc = [

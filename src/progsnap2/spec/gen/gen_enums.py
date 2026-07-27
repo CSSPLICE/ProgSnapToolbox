@@ -64,7 +64,7 @@ def _generate_core_tables_enum() -> str:
     enum_name = "CoreTables"
     enum_values = ["MainTable", "Metadata", "CodeStates"]
     doc = "Primary tables in the database."
-    return generate_enum(enum_name, enum_values, doc, lowercase_values=True)
+    return generate_enum(enum_name, enum_values, doc)
 
 def _generate_code_state_columns_enum() -> str:
     """
@@ -126,7 +126,7 @@ def _generate_link_table_names_enum(spec: ProgSnap2Spec) -> str:
     enum_values = [link_table.name for link_table in spec.link_tables]
     doc = "Defined LinkTables"
     docs = [link_table.description for link_table in spec.link_tables]
-    return generate_enum(enum_name, enum_values, doc, docs, lowercase_values=True)
+    return generate_enum(enum_name, enum_values, doc, docs)
 
 def generate_link_table_columns_enum(link_table_spec: LinkTableSpec, ps2_spec: ProgSnap2Spec) -> str:
     """

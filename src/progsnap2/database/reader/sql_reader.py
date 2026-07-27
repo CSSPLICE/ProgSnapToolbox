@@ -26,10 +26,13 @@ class SQLReader(PS2Reader):
     def get_session(self) -> Session:
         return self.context.session
 
+    def _get_connection(self):
+        return self.context.session.connection()
+
     def _get_table(self, table_name: str) -> DataFrame:
         return pd.read_sql_table(
             table_name,
-            self.context.conn,
+            self._get_connection(),
         )
 
     def get_main_table(self) -> DataFrame:
@@ -38,7 +41,7 @@ class SQLReader(PS2Reader):
     def get_main_table_head(self, n_rows = 5):
         main_table = self.context.table_manager.get_table(CoreTables.MainTable)
         statement = select(main_table).limit(n_rows)
-        return pd.read_sql(statement, self.context.conn)
+        return pd.read_sql(statement, self._get_connection())
 
     def get_metadata_table(self):
         return self._get_table(self.context.data_config.metadata_table_name)

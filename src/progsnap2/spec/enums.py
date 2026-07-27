@@ -2,9 +2,9 @@ from enum import Enum
 
 class CoreTables(str, Enum):
     """Primary tables in the database."""
-    MainTable = 'maintable'
-    Metadata = 'metadata'
-    CodeStates = 'codestates'
+    MainTable = 'MainTable'
+    Metadata = 'Metadata'
+    CodeStates = 'CodeStates'
     def __str__(self):
         return self.value
 
