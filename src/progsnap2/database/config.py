@@ -90,6 +90,8 @@ class PS2DataConfig(BaseModel):
     def from_yaml(cls, yaml_path: str, spec: ProgSnap2Spec) -> "PS2DataWriteConfig":
         with open(yaml_path, "r") as file:
             data = yaml.safe_load(file)
+        if data is None:
+            raise ValueError(f"YAML file {yaml_path} is empty or invalid.")
         config = cls(**data)
         config.validate_metadata(spec)
         return config
