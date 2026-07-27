@@ -46,7 +46,7 @@ class LearningCurveCalculator:
 
     def _plot_kc_internal(self, data, color=None, min_subjects = 5, **kwargs):
         data = data[data.groupby("opportunity")["SubjectID"].transform("nunique") >= min_subjects]
-        plot = sns.lineplot(data=data, x="opportunity", y="correct", errorbar=("ci", 95), n_boot=1000, estimator="mean")
+        plot = sns.lineplot(data=data, x="opportunity", y="error", errorbar=("ci", 95), n_boot=1000, estimator="mean")
         counts = data.groupby("opportunity")["SubjectID"].nunique().reset_index(name="n_subjects")
         counts_ax = plot.twinx()
         sns.lineplot(data=counts, x="opportunity", y="n_subjects", color="orange", label="n", ax=counts_ax, alpha=0.5)
@@ -105,6 +105,7 @@ class LearningCurveCalculator:
             results.append(row_base)
 
         result_df = pd.DataFrame(results)
+        result_df["error"] = 1 - result_df["correct"]
         result_df["opportunity"] = 0
         for _, group in result_df.groupby(["SubjectID", "kc"]):
             result_df.loc[group.index, "opportunity"] = list(range(1, len(group) + 1))
