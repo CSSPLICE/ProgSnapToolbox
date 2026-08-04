@@ -30,6 +30,10 @@ class PS2DataConfig(BaseModel):
     codestates_table_relative_path: str = "CodeStates.csv"
     """Relative path to the CodeStates table CSV file."""
 
+    codestates_in_maintable: bool = False
+    """If True, get_codestates will use the main table as the codestates table.
+    """
+
     # Config for SQL/SQLite format
     sqlalchemy_url: str = None
     echo: bool = False

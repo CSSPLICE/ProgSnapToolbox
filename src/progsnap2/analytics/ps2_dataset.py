@@ -43,6 +43,17 @@ class LinkTablePreprocessor(ABC):
         """
         pass
 
+class CodeStatesPreprocessor(ABC):
+    """
+    Base class for preprocessors that can be applied to the code states.
+    """
+
+    @abstractmethod
+    def apply(self, dataset: "PS2Dataset", codestates: DataFrame, subset: DataFrame=None) -> DataFrame:
+        """
+        Apply preprocessing to the codestates.
+        """
+        pass
 
 
 class PS2Dataset:
@@ -60,6 +71,8 @@ class PS2Dataset:
             TimePreprocessor(),
         ]
         self.link_table_preprocessors = []
+        self.codestates_subset_preprocessors = []
+        self.codestates_preprocessors = []
 
     def get_metadata_property(self, property_name: str) -> any:
         """
@@ -154,13 +167,45 @@ class PS2Dataset:
         only a subset rows matching the CodeStateID in the given DataFrame.
         This is useful for larger datasets, where all CodeStates may not
         easily fit in memory.
-        """
-        with self.factory.create_reader() as reader:
-            if rows is None:
-                return reader.get_codestates_table()
-            else:
-                return reader.get_codestates_table_subset(rows)
 
+        codestates_subset_preprocessors is a list of preprocessors that are
+        applied to the :rows: if it is not None.
+        
+        codestates_preprocessors is a list of preprocessors that are applied 
+        to the CodeStates after the subset is loaded
+        """
+        subset = None
+
+        if rows is not None:
+            subset = rows
+            for preprocessor in self.codestates_subset_preprocessors:
+                subset = preprocessor.apply(self, subset)
+        if self.data_config.codestates_in_maintable:
+            codestates = self._main_table if subset is None else subset
+        else:
+            with self.factory.create_reader() as reader:
+                if subset is None:
+                    codestates = reader.get_codestates_table()
+                else:
+                    codestates = reader.get_codestates_table_subset(subset)
+
+        for preprocessor in self.codestates_preprocessors:
+            codestates = preprocessor.apply(self, codestates, subset)
+
+        return codestates
+
+
+class ConvertTimestampPreprocessor(Preprocessor):
+    """
+    Preprocessor that converts the timestamp column to datetime.
+    """
+
+    def apply(self, dataset: PS2Dataset, main_table: DataFrame) -> DataFrame:
+        if Cols.ServerTimestamp in main_table.columns:
+            main_table[Cols.ServerTimestamp] = pd.to_datetime(main_table[Cols.ServerTimestamp], format='mixed')
+        if Cols.ClientTimestamp in main_table.columns:
+                    main_table[Cols.ClientTimestamp] = pd.to_datetime(main_table[Cols.ClientTimestamp], format='mixed')   
+        return main_table
 
 class SortPreprocessor(Preprocessor):
     """
@@ -266,3 +311,34 @@ class AddProblemIDPreprocessor(Preprocessor):
         if Cols.ProblemID not in main_table.columns and Cols.AssignmentID in main_table.columns:
             main_table[Cols.ProblemID] = main_table[Cols.AssignmentID]
         return main_table
+
+
+class RenameFinalGradesColumnLinkTablePreprocessor(LinkTablePreprocessor):
+    def __init__(self, final_grade_column: str, new_grade_column: str):
+        self.final_grade_column = final_grade_column
+        self.new_grade_column = new_grade_column
+        
+    def apply(self, dataset: "PS2Dataset", link_table_name, link_table: DataFrame) -> DataFrame:
+        if link_table_name != "Grades":
+            return link_table
+        
+        link_table.rename(columns={self.final_grade_column: self.new_grade_column}, inplace=True)
+        return link_table
+
+
+class NormalizeGradesLinkTablePreprocessor(LinkTablePreprocessor):
+    def apply(self, dataset: "PS2Dataset", link_table_name, link_table: DataFrame) -> DataFrame:
+        if "Grade" not in link_table.columns:
+            return link_table
+
+        # Drop 0 grades, since they're likely students who skipped the test
+        print(f"Dropping {link_table[link_table['Grade'] <= 0].shape[0]} rows with 0 grades")
+        link_table = link_table[link_table["Grade"] > 0].copy()
+
+        #normalize grades
+        if(link_table["Grade"].max() > 1):
+            max_grade = link_table["Grade"].max()
+            link_table["Grade"] = link_table["Grade"] / max_grade
+
+        return link_table
+

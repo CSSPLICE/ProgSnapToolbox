@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass, field
 from typing import Callable, Protocol
-from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor
+from progsnap2.analytics.ps2_dataset import CodeStatesPreprocessor, LinkTablePreprocessor, PS2Dataset, Preprocessor
+from progsnap2.analytics.metrics.code import CodeMetricsProcessor
 from progsnap2.database.config import PS2DataConfig
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 from enum import Enum
@@ -84,6 +85,10 @@ class AnalyticsConfig:
     """A list of Preprocessors to apply to the main table before analysis."""
     link_table_preprocessors: list[LinkTablePreprocessor]  = field(default_factory=list)
     """A list of LinkTablePreprocessors to apply to link tables before analysis."""
+    codestates_subset_preprocessors: list[Preprocessor]  = field(default_factory=list)
+    """A list of Preprocessors to apply to the subset passed to get_codestates before loading the codestates."""
+    codestates_preprocessors: list[CodeStatesPreprocessor]  = field(default_factory=list)
+    """A list of CodeStatesPreprocessors to apply to the CodeStates dataframe before analysis."""
 
     attempt_grouping_columns: list[str] = field(default_factory=lambda: [Cols.SubjectID, Cols.AssignmentID, Cols.ProblemID])
     """A list of columns that should be used to group one student working on one problem in one classroom.
@@ -122,6 +127,9 @@ class AnalyticsConfig:
     create_data_config: Callable[[str], PS2DataConfig] = None
     """A function that creates a PS2DataConfig object for the dataset."""
 
+    code_metrics_processor: CodeMetricsProcessor = None
+    """A CodeMetricsProcessor object for the dataset."""
+
     def load(self, root_path: str, spec=None) -> PS2Dataset:
         """
         Loads the dataset using the specified root path and spec.
@@ -135,5 +143,10 @@ class AnalyticsConfig:
             dataset.main_table_preprocessors.insert(i, step)
         for i, step in enumerate(self.link_table_preprocessors):
             dataset.link_table_preprocessors.insert(i, step)
+        for i, step in enumerate(self.codestates_preprocessors):
+            dataset.codestates_preprocessors.insert(i, step)
+        for i, step in enumerate(self.codestates_subset_preprocessors):
+            dataset.codestates_subset_preprocessors.insert(i, step)
+        
         return dataset
 
