@@ -2,7 +2,9 @@ import re
 import pandas as pd
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
 
-from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor
+from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor, ConvertTimestampPreprocessor
+from progsnap2.analytics.preprocessors.codestates import SelectColumnsFromSubsetPreprocessor, CodeStatesMergeWithDataSubset
+from progsnap2.analytics.metrics.code import JavaCodeMetricsProcessor
 from progsnap2.database.config import PS2DataConfig
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 from progsnap2.spec.metadata import MetadataValues
@@ -62,9 +64,24 @@ _base_config = AnalyticsConfig(
 
     primary_timestamp_column=Cols.ServerTimestamp,
     main_table_preprocessors=[
+        ConvertTimestampPreprocessor(),
         SortPreprocessor(Cols.ServerTimestamp),
         CodeWorkoutExtractErrorTypesPreprocessor(),
     ],
+
+    codestates_subset_preprocessors=[
+        SelectColumnsFromSubsetPreprocessor(columns=[
+            "SubjectID", "ProblemID", "Score", "CodeStateID", "ServerTimestamp"
+        ]),
+    ],
+
+    codestates_preprocessors=[
+        CodeStatesMergeWithDataSubset(),
+    ],
+
+    code_metrics_processor=JavaCodeMetricsProcessor(code_col="Code",
+        code_id_col = Cols.CodeStateID
+    ),
 
     submit_event=EventType.RunProgram,
 
