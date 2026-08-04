@@ -29,13 +29,16 @@ def filter_before_time(main_table, time_cutoff, timestamp_col, filter_problems=T
     return data_subset
 
 def filter_out_partial_problems(main_table, data_subset, time_cutoff, timestamp_col, cutoff=0.5, verbose=True):
-    included_problem_ids = data_subset[Cols.ProblemID].unique()
-    problem_percentages = main_table[main_table[Cols.ProblemID].isin(included_problem_ids)].groupby(Cols.ProblemID).apply(lambda x: (x[timestamp_col] < time_cutoff).mean())
+    problem_ID_column = Cols.ProblemID if Cols.ProblemID in data_subset.columns else Cols.AssignmentID
+
+    included_problem_ids = data_subset[problem_ID_column].unique()
+
+    problem_percentages = main_table[main_table[problem_ID_column].isin(included_problem_ids)].groupby(problem_ID_column).apply(lambda x: (x[timestamp_col] < time_cutoff).mean())
     problem_percentages.sort_values(ascending=False, inplace=True)
 
     precluded_problems = problem_percentages[problem_percentages < cutoff].index
     len_before = len(data_subset)
-    data_subset = data_subset[~data_subset[Cols.ProblemID].isin(precluded_problems)]
+    data_subset = data_subset[~data_subset[problem_ID_column].isin(precluded_problems)]
 
     if not verbose:
         return data_subset
