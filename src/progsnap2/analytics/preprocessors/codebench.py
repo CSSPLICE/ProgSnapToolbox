@@ -3,7 +3,8 @@ logger = logging.getLogger(__name__)
 
 import os
 import pandas as pd
-from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, Preprocessor
+from pandas import DataFrame
+from progsnap2.analytics.ps2_dataset import CodeStatesPreprocessor, LinkTablePreprocessor, Preprocessor
 import yaml
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 
@@ -132,4 +133,14 @@ class CodeBenchExamPerformance:
         return exam_scores
 
 
+class CodeBenchFilterSubmitPreprocessor(Preprocessor):
+    """
+    Preprocessor that filters the given subset to only include Submit events
+    """
+
+    def __init__(self, submit_event: str = "Submit"):
+        self.submit_event = submit_event
+
+    def apply(self, dataset: "PS2Dataset", subset: DataFrame):
+        return subset[subset[Cols.EventType] == self.submit_event]
 

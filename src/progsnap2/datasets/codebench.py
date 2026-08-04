@@ -1,5 +1,8 @@
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
-from progsnap2.analytics.preprocessors.codebench import CodeBenchAddParentEventIDs, CodeBenchRemoveGradeDuplicatesPreprocessor, CodeBenchRemoveSmallClassesPreprocessor, YAMLLinkURLPreprocessor
+from progsnap2.analytics.ps2_dataset import ConvertTimestampPreprocessor
+from progsnap2.analytics.metrics.code import PythonCodeMetricsProcessor
+from progsnap2.analytics.preprocessors.codebench import CodeBenchAddParentEventIDs, CodeBenchRemoveGradeDuplicatesPreprocessor, CodeBenchRemoveSmallClassesPreprocessor, YAMLLinkURLPreprocessor, CodeBenchFilterSubmitPreprocessor
+from progsnap2.analytics.preprocessors.codestates import CodeStatesMergeWithDataSubset
 from progsnap2.database.config import PS2DataConfig
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 from dataclasses import replace
@@ -20,6 +23,7 @@ _base_config = AnalyticsConfig(
 
     primary_timestamp_column=Cols.ServerTimestamp,
     main_table_preprocessors=[
+        ConvertTimestampPreprocessor(),
         CodeBenchAddParentEventIDs(),
         CodeBenchRemoveSmallClassesPreprocessor(min_count=1000),
     ],
@@ -27,6 +31,14 @@ _base_config = AnalyticsConfig(
         YAMLLinkURLPreprocessor(True),
         CodeBenchRemoveGradeDuplicatesPreprocessor(),
     ],
+    codestates_subset_preprocessors=[
+        CodeBenchFilterSubmitPreprocessor(),
+    ],
+    codestates_preprocessors=[
+        CodeStatesMergeWithDataSubset(),
+    ],
+
+    code_metrics_processor=PythonCodeMetricsProcessor(code_col="Code"),
 
     compile_error_type_column="ProgramErrorOutput",
     compile_event=EventType.Submit,
@@ -50,7 +62,6 @@ _base_config.attempt_grouping_columns += [
 
 F24 = replace(_base_config,
     name=f"{_base_name}_f24",
-
     start_time="2024-09-01 00:00:00",
     end_time=None,
     early_time="2024-09-28 00:00:00",
