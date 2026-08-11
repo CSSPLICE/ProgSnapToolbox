@@ -1,5 +1,5 @@
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
-from progsnap2.analytics.ps2_dataset import ConvertTimestampPreprocessor
+from progsnap2.analytics.ps2_dataset import ConvertTimestampPreprocessor, SortDatasetAscendingPreprocessor
 from progsnap2.analytics.metrics.code import PythonCodeMetricsProcessor
 from progsnap2.analytics.preprocessors.codebench import CodeBenchAddParentEventIDs, CodeBenchRemoveGradeDuplicatesPreprocessor, CodeBenchRemoveSmallClassesPreprocessor, YAMLLinkURLPreprocessor, CodeBenchFilterSubmitPreprocessor
 from progsnap2.analytics.preprocessors.codestates import CodeStatesMergeWithDataSubset
@@ -26,6 +26,7 @@ _base_config = AnalyticsConfig(
         ConvertTimestampPreprocessor(),
         CodeBenchAddParentEventIDs(),
         CodeBenchRemoveSmallClassesPreprocessor(min_count=1000),
+        SortDatasetAscendingPreprocessor(subject_id_col=Cols.SubjectID, problem_id_col=Cols.ProblemID, timestamp_col=Cols.ServerTimestamp),
     ],
     link_table_preprocessors=[
         YAMLLinkURLPreprocessor(True),

@@ -312,6 +312,15 @@ class AddProblemIDPreprocessor(Preprocessor):
             main_table[Cols.ProblemID] = main_table[Cols.AssignmentID]
         return main_table
 
+class SortDatasetAscendingPreprocessor(Preprocessor):
+    def __init__(self, subject_id_col: str=Cols.SubjectID, problem_id_col: str=Cols.ProblemID, timestamp_col: str=Cols.ServerTimestamp):
+        self.subject_id_col = subject_id_col
+        self.problem_id_col = problem_id_col
+        self.timestamp_col = timestamp_col
+
+    def apply(self, dataset: PS2Dataset, main_table: DataFrame) -> DataFrame:
+        return main_table.sort_values(by=[self.subject_id_col, self.problem_id_col, self.timestamp_col], ascending=[True, True, True])
+
 
 class RenameFinalGradesColumnLinkTablePreprocessor(LinkTablePreprocessor):
     def __init__(self, final_grade_column: str, new_grade_column: str):

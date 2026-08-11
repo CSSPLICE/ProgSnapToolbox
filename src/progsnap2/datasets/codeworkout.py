@@ -2,7 +2,7 @@ import re
 import pandas as pd
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
 
-from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor, ConvertTimestampPreprocessor
+from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor, ConvertTimestampPreprocessor, SortDatasetAscendingPreprocessor
 from progsnap2.analytics.preprocessors.codestates import SelectColumnsFromSubsetPreprocessor, CodeStatesMergeWithDataSubset
 from progsnap2.analytics.metrics.code import JavaCodeMetricsProcessor
 from progsnap2.database.config import PS2DataConfig
@@ -67,6 +67,7 @@ _base_config = AnalyticsConfig(
         ConvertTimestampPreprocessor(),
         SortPreprocessor(Cols.ServerTimestamp),
         CodeWorkoutExtractErrorTypesPreprocessor(),
+        SortDatasetAscendingPreprocessor(subject_id_col=Cols.SubjectID, problem_id_col=Cols.ProblemID, timestamp_col=Cols.ServerTimestamp),
     ],
 
     codestates_subset_preprocessors=[

@@ -1,5 +1,6 @@
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
 from progsnap2.datasets.edwards_preprocessors import ClassSubsetPreprocessor, TimeStampToDateTimePreprocessor
+from progsnap2.analytics.ps2_dataset import SortDatasetAscendingPreprocessor
 from progsnap2.database.config import PS2DataConfig
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 from dataclasses import replace
@@ -30,6 +31,7 @@ _base_2019_config = AnalyticsConfig(
     primary_timestamp_column=Cols.ClientTimestamp,
     main_table_preprocessors=[
         TimeStampToDateTimePreprocessor(),
+        SortDatasetAscendingPreprocessor(subject_id_col=Cols.SubjectID, problem_id_col=Cols.ProblemID, timestamp_col=Cols.ClientTimestamp),
     ],
 
     compile_event=EventType.RunProgram,

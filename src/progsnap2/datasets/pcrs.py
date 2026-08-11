@@ -1,6 +1,6 @@
 from progsnap2.analytics.analytics_config import AnalyticsConfig, Granularity, ProgrammingLanguage
 from progsnap2.database.config import PS2DataConfig
-from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor, ConvertTimestampPreprocessor, NormalizeGradesLinkTablePreprocessor, RenameFinalGradesColumnLinkTablePreprocessor
+from progsnap2.analytics.ps2_dataset import LinkTablePreprocessor, PS2Dataset, Preprocessor, SortPreprocessor, ConvertTimestampPreprocessor, NormalizeGradesLinkTablePreprocessor, RenameFinalGradesColumnLinkTablePreprocessor, SortDatasetAscendingPreprocessor
 from progsnap2.spec.enums import MainTableColumns as Cols, EventType
 from progsnap2.analytics.preprocessors.pcrs import PcrsRenameColumns, PcrsFilterColumns, PcrsAddEventTypeColumn, PcrsRenameColumnsLinkTablePreprocessor, PcrsReplaceMissingGradesLinkTablePreprocessor, PcrsDropNanGradesLinkTablePreprocessor, PcrsFilterWithIDMappingLinkTablePreprocessor, PcrsStripCodeSHAPreprocessor
 from progsnap2.analytics.metrics.code import PythonCodeMetricsProcessor
@@ -42,6 +42,7 @@ _base_config = AnalyticsConfig(
         ConvertTimestampPreprocessor(),
         PcrsFilterColumns(),
         SortPreprocessor(Cols.ServerTimestamp),
+        SortDatasetAscendingPreprocessor(subject_id_col=Cols.SubjectID, problem_id_col=Cols.ProblemID, timestamp_col=Cols.ServerTimestamp),
     ],
 
     grades_link_table_name="Grades",
