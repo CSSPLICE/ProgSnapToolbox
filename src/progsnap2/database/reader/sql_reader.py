@@ -28,7 +28,7 @@ class SQLReader(PS2Reader):
 
     def _get_table(self, table_name: str) -> DataFrame:
         return pd.read_sql_table(
-            table_name,
+            str(table_name),
             self.context.conn,
         )
 
