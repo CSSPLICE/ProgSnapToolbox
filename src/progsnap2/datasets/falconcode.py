@@ -30,17 +30,17 @@ _base_config = AnalyticsConfig(
 S21 = replace(_base_config,
     name=f"{_base_name}_s21",
     create_data_config=_create_data_config,
-    early_time=None, # TODO
+    early_time="2021-02-06 20:23:36"
 )
 
 F21 = replace(_base_config,
     name=f"{_base_name}_f21",
     create_data_config=_create_data_config,
-    early_time=None, # TODO
+    early_time="2021-08-27 19:42:35.35"
 )
 
 S22 = replace(_base_config,
     name=f"{_base_name}_s22",
     create_data_config=_create_data_config,
-    early_time=None, # TODO
+    early_time="2022-02-05 14:44:28.46"
 )
