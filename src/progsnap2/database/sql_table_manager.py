@@ -217,12 +217,15 @@ class SQLWriterTableManager(SQLTableManager):
         }
         tables.update(self.link_tables)
 
+        metadata_tables_lc_map = {name.lower(): name for name in current_metadata.tables.keys()}
+
         # Iterate through each table defined in our spec-defined metadata
         for table_name, table in tables.items():
+            table_name_lc = table_name.lower()
             # Check if the table exists in the current metadata
-            if table_name in current_metadata.tables:
+            if table_name_lc in metadata_tables_lc_map:
                 # If it exists, check for missing columns
-                existing_table = current_metadata.tables[table_name]
+                existing_table = current_metadata.tables[metadata_tables_lc_map[table_name_lc]]
                 self._update_table_columns(conn, existing_table, table)
             else:
                 # If the table doesn't exist, create it
